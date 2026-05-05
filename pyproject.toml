@@ -7,4 +7,5 @@ requires-python = ">=3.8"
 dependencies = [
     "marimo>=0.8.22",
     "matplotlib>=3.7.5",
+    "pre-commit>=3.5.0",
 ]
