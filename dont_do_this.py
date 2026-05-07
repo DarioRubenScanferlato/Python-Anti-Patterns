@@ -9,17 +9,18 @@ app = marimo.App(
 
 
 @app.cell
-def _():
+def __():
     import marimo as mo
 
     return (mo,)
 
 
 @app.cell
-def _():
-    from PIL import Image, ImageDraw
+def __():
     import math
     import random
+
+    from PIL import Image, ImageDraw
 
     def normalize(vx, vy, vz):
         length = math.sqrt(vx * vx + vy * vy + vz * vz)
@@ -192,8 +193,9 @@ def _(mo):
 
 @app.cell
 def _():
-    import matplotlib.pyplot as plt
     from datetime import datetime
+
+    import matplotlib.pyplot as plt
 
     # Data
     dates = [datetime(2026, 5, 29), datetime(2026, 5, 30)]
@@ -276,7 +278,7 @@ def _(mo):
                 [
                     mo.md(r"""
     # Anti-patterns
-    An *anti-pattern* is a solution to a class of problem which may be commonly used but is likely to be ineffective or counterproductive. 
+    An *anti-pattern* is a solution to a class of problem which may be commonly used but is likely to be ineffective or counterproductive.
     ### Anti-patterns lead to:
     * Bad Performance
     * Unreadable code
@@ -338,7 +340,12 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    mo.md("""# Automatic code analysis tools""")
+    mo.md(
+        """
+        # Automatic code analysis tools
+        - Linter parses your code into an AST (Abstract Syntax Tree) and then walks that tree looking for nodes that match a known bad pattern. When it finds one, it emits a violation with the rule code, line number, and a message.
+        """
+    )
     return
 
 
