@@ -11,17 +11,15 @@ app = marimo.App(
 
 @app.cell
 def imports():
-    import math
-    import random
-
     import marimo as mo
     from PIL import Image, ImageDraw
-
+    import math
+    import random
     return Image, ImageDraw, math, mo, random
 
 
 @app.cell
-def slide_definition(mo):
+def __(mo):
     class AntiPatternSlide:
         def __init__(
             self,
@@ -41,7 +39,9 @@ def slide_definition(mo):
             self.tip = tip
             self.info = info
 
+
         def _code_block(self, text):
+
             return mo.md(f"""
     <style>
     pre {{
@@ -61,12 +61,13 @@ def slide_definition(mo):
     ```python
     {text}
     ```
-    """)
+    """
+            )
 
         def _tip_div(self):
             if self.tip is not None:
                 return mo.Html(f"""
-    <div style="background:#e8f4fd; border-left:4px solid #3b82f6;
+    <div style="background:#e8f4fd; border-left:4px solid #3b82f6; 
                 padding:20px 16px; margin:0; border-radius:4px;">
       💡 {self.tip}
     </div>
@@ -75,11 +76,7 @@ def slide_definition(mo):
                 return ""
 
         def _header(self):
-            return (
-                f"##**{self.pattern_id}** - {self.title}"
-                if self.pattern_id
-                else f"## {self.title}"
-            )
+            return f"##**{self.pattern_id}** - {self.title}" if self.pattern_id else f"## {self.title}"
 
         def display(self):
             return mo.vstack(
@@ -99,7 +96,6 @@ def slide_definition(mo):
 
         def _repr_html_(self):
             return self.display().text
-
     return (AntiPatternSlide,)
 
 
@@ -207,7 +203,6 @@ def g_1(Image, ImageDraw, math, random):
             )
 
         return img
-
     return draw_jagged_grid, normalize
 
 
@@ -258,27 +253,26 @@ def __():
 def about_me(mo):
     mo.hstack(
         [
-            mo.image("images/dario.jpg", width=400, style={"border-radius": "100%"}),
+            mo.image("images/dario.jpg", width=400, style={'border-radius': '100%'}),
             mo.md(
                 """# About me
                 - Data Scientist & Engineer
                 - Currently developing anomaly detection and simulation tools for gas turbines using Python
                 - MSc in Engineering and Management at Politecnico di Torino
-                - Organizer of the Python Torino user group
+                - Volunteer of the Python Torino user group
                 - Talk to me about guitar, chess, and open-source
                 """
-            ),
+            )
         ],
-        gap=10,
+        gap=10
     )
     return
 
 
 @app.cell
 def intro_graph():
-    from datetime import datetime
-
     import matplotlib.pyplot as plt
+    from datetime import datetime
 
     # Data
     dates = [datetime(2026, 5, 29), datetime(2026, 5, 30)]
@@ -308,8 +302,9 @@ def agenda(mo):
         # Agenda
 
         - Introduce design patterns and anti-patterns
-        - How to spot and address anti-patterns
-        - Examples of Python anti-patterns
+        - Explain how to detect anti-patterns with linters
+        - Learn about Python features through some anti-patterns examples
+        - Provide some guidance on how to avoid anti-patterns
         """
     )
     return
@@ -360,7 +355,7 @@ def anti_patterns_book(mo):
                 [
                     mo.md(r"""
     # Anti-patterns
-    An *anti-pattern* is a solution to a class of problem which may be commonly used but is likely to be ineffective or counterproductive.
+    An *anti-pattern* is a solution to a class of problem which may be commonly used but is likely to be ineffective or counterproductive. 
     ### Anti-patterns lead to:
     * Bad Performance
     * Unreadable code
@@ -408,7 +403,7 @@ def anti_patterns_in_python_intro(mo):
 @app.cell
 def __(AntiPatternSlide):
     AntiPatternSlide(
-        title="Mutable Default Arguments",
+        title="Don't use mutable default arguments",
         description="""
     **Mutable default arguments** (like lists or dicts) are created **once** when the function is defined,
     not each time it is called. This leads to shared state across calls — a very subtle bug.
@@ -435,8 +430,7 @@ def __(AntiPatternSlide):
     print(append_to(2))   # [2]  ✓
     print(append_to(3))   # [3]  ✓
     """,
-        tip="""Do not use mutable data structures for argument defaults. They are created during function definition time. All calls to the function reuse this one instance of that data structure, persisting changes between them.""",
-        pattern_id="B006",
+        tip= """Do not use mutable data structures for argument defaults. They are created during function definition time. All calls to the function reuse this one instance of that data structure, persisting changes between them."""
     )
     return
 
@@ -447,7 +441,7 @@ def avoiding_antipatterns(mo):
         """
         #How do we avoid anti-patterns in Python?
         - Use static code analysis tools (pylint, ruff)
-        - Be aware of common mistakes
+        - Be aware of common mistakes - as a starting point, you can check out the [Little Book of Python Anti-Patterns](https://github.com/quantifiedcode/python-anti-patterns/blob/master/docs/The-Little-Book-Of-Python-Anti-Patterns.pdf)
         - Improve your general programming knowledge (data structures, algorithms, principles, patterns)
         - Learn more about your modules - either built-in or external
         - Ask an expert (or use an LLM) to review your code
@@ -458,10 +452,8 @@ def avoiding_antipatterns(mo):
 
 @app.cell
 def automatic_code_analysis(mo):
-    mo.hstack(
-        [
-            mo.md(
-                """# Automatic code analysis tools
+    mo.hstack([mo.md(
+        """# Automatic code analysis tools
     - A linter parses your code into an AST (Abstract Syntax Tree) and then walks that tree looking for nodes that match a known bad pattern. When it finds one, it emits a violation with the rule code, line number, and a message.
     - Linters can be configured enabling rule sets to detect specific types of errors
     - Anti-patterns detected by linters are identified with a code. The code is composed of one (or more) letter(s) that indicates the error category, and a number to differentiate within the category. For example, pylint uses the following:
@@ -471,13 +463,14 @@ def automatic_code_analysis(mo):
         - **E** — error
         - **F** — fatal
         """
-            ),
-            mo.image(
-                src="http://media.makeameme.org/created/linter-and-formatter.jpg",
-                width=600,
-            ),
-        ]
-    )
+    ),
+    mo.image(src="http://media.makeameme.org/created/linter-and-formatter.jpg", width=600)])
+    return
+
+
+@app.cell
+def __(mo):
+    mo.image('images/linter error.gif')
     return
 
 
@@ -497,7 +490,7 @@ def linter_setup_1(mo):
         }}
         </style>
         #Setting up an automated linter
-        Configuring a linter is pretty straightforward. I recommend [**ruff**](https://docs.astral.sh/ruff/) as it's very fast and has auto-fix capabilities. We can enable the linter to run every time we commit our code using pre-commit
+        Configuring a linter is pretty straightforward. I recommend [**ruff**](https://docs.astral.sh/ruff/) as it's very fast and has auto-fix capabilities. We can enable the linter to run every time we commit our code using pre-commit 
 
         Step 1: Install pre-commit and ruff
         ```bash
@@ -534,7 +527,7 @@ def linter_config(mo):
         ```toml
         [tool.ruff.lint]
         select = [
-            "E",
+            "E", 
             "W",
             ...
         ]
@@ -557,9 +550,9 @@ def linter_config(mo):
 @app.cell
 def __(AntiPatternSlide):
     AntiPatternSlide(
-        title="Bare except clause",
+        title="Don't handle errors with bare except clauses",
         description="""
-    - Handling errors with a **bare `except:`** clause might be dangerous, as this syntax catches all exceptions, including `SystemExit`, `KeyboardInterrupt`, which makes it hard to interrupt the program and can disguise other problems.
+    - Handling errors with a **bare `except:`** clause might be dangerous, as this syntax catches all exceptions, including `SystemExit`, `KeyboardInterrupt`, which makes it hard to interrupt the program and can disguise other problems. 
     - Both pylint ([W0702](https://pylint.readthedocs.io/en/v3.3.9/user_guide/messages/warning/bare-except.html)) and ruff ([E722](https://docs.astral.sh/ruff/rules/bare-except/)) detect this kind of anti-pattern.
     - This anti-pattern is well-known and some people even proposed to disallow it in Python ([PEP76](https://peps.python.org/pep-0760/))
         """,
@@ -573,13 +566,13 @@ def __(AntiPatternSlide):
     except MoreSpecificException as e:
         handle_error(e)
 
-    # If you need to catch an unknown error use Exception
+    # If you need to catch an unknown error use Exception 
     try:
         some_other_fn()
     except Exception as e:
         print(f"This unexpected error occurred: {e}")
     """,
-        tip="Always catch specific exceptions. At minimum use `except Exception` or re-raise after logging.",
+        tip="Always catch specific exceptions. At minimum use `except Exception` or re-raise after logging."
     )
     return
 
@@ -590,7 +583,7 @@ def __(AntiPatternSlide):
         title="type() vs isinstance()",
         description="""Using `type(x) == SomeType` breaks **polymorphism** and ignores subclasses.
     `isinstance()` respects inheritance and is the Pythonic way to check types.""",
-        bad_code="""# ❌ Antipattern: using type() for type checking
+        bad_code="""
     class Animal:
         pass
 
@@ -599,12 +592,10 @@ def __(AntiPatternSlide):
 
     dog = Dog()
 
-    if type(dog) == Animal:  # False — misses subclasses!
-        print("It's an animal")
-    else:
-        print("Not recognized as an animal")
+    if type(dog) == Animal:  # Evaluates to False, since type(dog) returns <class '__main__.Dog'>
+        print("What a magnificent beast!")
     """,
-        good_code="""# ✅ Fix: use isinstance() to respect inheritance
+        good_code="""
     class Animal:
         pass
 
@@ -613,11 +604,10 @@ def __(AntiPatternSlide):
 
     dog = Dog()
 
-    if isinstance(dog, Animal):  # True — correctly identifies subclass
-        print("It's an animal ✓")
+    if isinstance(dog, Animal):  # evaluates to True
+        print("What a magnificent beast!")
     """,
-        tip="Prefer `isinstance()` for type checks. It works correctly with subclasses and abstract base classes.",
-        pattern_id="E721",
+        tip="Prefer `isinstance()` for type checks. It works correctly with subclasses and abstract base classes. You can also check if an object belongs to a list of classes, e.g. isinstance(my_animal, [Dog, Cat])"
     )
     return
 
@@ -631,7 +621,8 @@ def __(mo):
 
         - Linters fail to capture bad design decisions, e.g. code structure, although you can configure limits on code complexity
         - Linters don't usually detect inappropriate choices for data structures and algorithms
-        - Linters don't enforce good development habits (e.g. having a reproducible environment, automating checks and formatting, implementing unit-tests to make your code reliable)
+        - Linters don't enforce good development habits (e.g. versioning code, having a reproducible environment, implementing unit-tests to make your code reliable)
+        - It's possible to write awful code that passes all linter checks
         """
     )
     return
@@ -642,24 +633,20 @@ def __(mo):
     mo.hstack(
         [
             mo.md(
-                """
+        """
         # Data Structures
         - Learning about data structures and their implementation in Python makes you write faster and more efficient code.
         - Each data structure must be picked according to how you need to access and interact with your data.
-        - By sticking with built-in algorithms, we avoid straying into anti-pattern territory
+        - By sticking with idiomatic, built-in algorithms, we avoid straying into anti-pattern territory
         - The `queue` and `collections` standard packages include additional data structures that can be leveraged in our code.
 
 
         > Reference: Effective Python by Brett Slatkin - Using Built-in Packages
         """
             ),
-            mo.image(
-                "https://m.media-amazon.com/images/I/81+g5+5nmWL._SL1500_.jpg",
-                width=300,
-                rounded=True,
-            ),
+            mo.image("https://m.media-amazon.com/images/I/81+g5+5nmWL._SL1500_.jpg", width=300, rounded=True)
         ],
-        gap=5,
+        gap=5
     )
     return
 
@@ -667,9 +654,9 @@ def __(mo):
 @app.cell
 def __(AntiPatternSlide):
     AntiPatternSlide(
-        title="Using list as a Stack or Queue",
-        description="""`list.pop(0)` (removing from the front) is **O(n)** because every element must be shifted.
-    For queue (FIFO) operations, use `collections.deque`, which supports O(1) appends and pops from both ends.""",
+        title="Don't use lists as a Stack or Queue",
+        description="""`list.pop(0)` (removing from the front) has **O(n)** complexity because every element must be shifted.
+    For FIFO (first in, first out) queue operations, use `collections.deque`, which supports O(1) appends and pops from both ends.""",
         bad_code="""
     queue = []
     queue.append("task1")
@@ -691,61 +678,48 @@ def __(AntiPatternSlide):
     while queue:
         item = queue.popleft()  # O(1) ✓
         print(f"Processing: {item}")
-
-    # For stacks (LIFO), a plain list is actually fine:
-    stack = []
-    stack.append("a")
-    stack.append("b")
-    top = stack.pop()   # O(1) — popping from the end is fast
     """,
+        tip="Note that for LIFO (last in first out) queues, a list would actually be fine"
     )
+    return
+
+
+@app.cell
+def __():
     return
 
 
 @app.cell
 def __(mo):
     diagram = mo.mermaid("""
-        %%{init: {'theme': 'default', 'flowchart': {'curve': 'basis'}}}%%
-        flowchart LR
-            START([You have a collection of data])
-
-            START --> Q1{Order matters?}
-
-            Q1 -->|Yes| Q2{Mutable?}
-            Q1 -->|No| Q5{Unique values?}
-
-            Q2 -->|No - immutable| QN{Named fields?}
-            QN -->|Yes| R_NT([typing.NamedTuple])
-            QN -->|No| R_T([tuple])
-
-            Q2 -->|Yes - mutable| Q3{Access pattern?}
-            Q3 -->|Index read/write| R_L([list])
-            Q3 -->|Insert/remove at both ends| R_D([collections.deque])
-
-            Q5 -->|Yes - unique| Q6{Key → value pairs?}
-            Q6 -->|Yes| R_DICT([dict])
-            Q6 -->|No| Q9{Mutable?}
-            Q9 -->|Yes| R_SET([set])
-            Q9 -->|No| R_FS([frozenset])
+        %%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#EEEDFE', 'primaryBorderColor': '#7F77DD', 'primaryTextColor': '#3C3489', 'secondaryColor': '#E1F5EE', 'tertiaryColor': '#FAEEDA'}, 'flowchart': {'curve': 'basis'}}}%%
+    flowchart LR
+        START([Start: collection of data])
+        START --> Q1{Order matters?}
+        Q1 -->|Yes| Q2{Named fields?}
+        Q2 -->|Yes| Q2M{Mutable?}
+        Q2M -->|No| R_NT([NamedTuple])
+        Q2M -->|Yes| R_DC([dataclass])
+        Q2 -->|No| Q3{Mutable?}
+        Q3 -->|No| R_T([tuple])
+        Q3 -->|Yes| Q4{Access pattern?}
+        Q4 -->|Index / general use| R_L([list])
+        Q4 -->|Fast insert & remove\\nat both ends| R_DQ([deque])
+        Q1 -->|No| Q5{Require\\nunique values?}
+        Q5 -->|Yes| Q6{Key → value pairs?}
+        Q6 -->|Yes| R_DICT([dict])
+        Q6 -->|No| Q7{Mutable?}
+        Q7 -->|Yes| R_SET([set])
+        Q7 -->|No| R_FS([frozenset])
+        Q5 -->|No| Q8{Mutable?}
+        Q8 -->|Yes| R_L2([list])
+        Q8 -->|No| R_T2([tuple])
         """)
 
-    mo.Html(f"""
-    <div style="width: 1400px;">
-        {diagram.text}
-    </div>
-    """)
-
-    mo.vstack(
-        [
-            mo.md("#Picking the right data-structure"),
-            mo.Html(f"""
-    <div style="width: 1400px;">
-        {diagram.text}
-    </div>
-    """),
-        ],
-        gap=5,
-    )
+    mo.vstack([
+        mo.md("# Picking the right data structure"),
+        diagram
+    ], gap=5)
     return (diagram,)
 
 
@@ -753,7 +727,7 @@ def __(mo):
 def __(AntiPatternSlide):
     AntiPatternSlide(
         title="More on built-in packages",
-        description="""- Python provides a wide array of tools to make your loops efficient and readable (enumerate, zip, list comprehensions)
+        description="""- Python provides a wide array of tools to make your loops efficient, idiomatic, and readable (enumerate, zip, list comprehensions)
         - Linters already notify you about some idiomatic ways to improve your loops
         - As looping conditions become more complex, it might be worthwhile to check whether the itertools standard package has a solution. One of such cases arises when we want to process data in batches""",
         bad_code="""batch_size = 100
@@ -768,6 +742,21 @@ def __(AntiPatternSlide):
     for batch in batched(records, batch_size):
         process(batch)
     """,
+        tip="""While it might be debatable whether this is an anti-pattern, using batched is more readable, less error prone, and also applies to generators. The batched iterator allocates tuples rather than lists, which is slightly cheaper. Note that batched is only available on Python >3.12"""
+    )
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        # Performance anti-patterns
+        - Although some performance linting rules exist 
+        - Performance matters, but readability counts
+        - Rather than optimizing prematurely, it's always better to profile your code to identify the bottleneck.
+        - The standard package **cProfile** is a great place to start if you need to evaluate your code's performance.
+        """
     )
     return
 
@@ -778,42 +767,7 @@ def __(mo):
         r"""
         # Get to know your packages
         - Understanding the inner workings of the packages makes you write more efficient code
-        - Be aware of common workflows and patterns used to solve problems
-        """
-    )
-    return
-
-
-@app.cell
-def __():
-    # pandas chaining
-    return
-
-
-@app.cell
-def __():
-    # pandas iterrows
-    return
-
-
-@app.cell
-def __():
-    # scikit pipeline
-    return
-
-
-@app.cell
-def __():
-    return
-
-
-@app.cell
-def __(mo):
-    mo.md(
-        r"""
-        # Performance anti-patterns
-        - Performance matters, but readability counts
-        - Rather than optimizing prematurely, it's always better to profile your code to identify the bottleneck. The standard package **cProfile** can help us with this task.
+        - Be aware of common tools, workflows, and patterns used to solve problems
         """
     )
     return
@@ -823,304 +777,63 @@ def __(mo):
 def __(mo):
     mo.md(
         """
-        # slides
+        # Chaining pandas operations
 
-        - ✅ type vs isinstance
-        - perflint Inappropriate use of data structures W8301 : Use tuple instead of list for a non-mutated sequence. (use-tuple-over-list)
-        - ✅ are there any antipatterns that are not detected by linters?
-            - Linters fail to capture bad design decisions, e.g. code structure, although you can configure limits on code complexity
-            - ✅ inappropriate choices for data structures and algorithms
-        - ✅ slide with types of data structures you should use. If you want to check if an item belongs to a group, use set to check in constant time
-        - ✅ queue vs list antipattern - beyond the usual data structures
-        - Methodology anti-patterns - these are bad development habits
-            - Repetitive manual work that can be automated (unit-tests, formatting, builds)
-            - Having a non-reproducible environment
-            - Premature optimization
-        - Performance anti-patterns
-        - Library-specific anti-patterns
-            - pandas
-            - scikit-learn
+        ```python
+        # Anti-pattern: intermediate variables
+        df1 = df[df['age'] > 18]
+        df2 = df1.dropna(subset=['email'])
+        df3 = df2.rename(columns={'name': 'full_name'})
+        result = df3.reset_index(drop=True)
+
+        # Pythonic: method chaining
+        result = (
+            df
+            .query('age > 18')
+            .dropna(subset=['email'])
+            .rename(columns={'name': 'full_name'})
+            .reset_index(drop=True)
+        )
+        ```
         """
     )
     return
 
 
 @app.cell
-def antipattern_topics(mo):
-    antipattern_topics = mo.ui.dropdown(
-        options=[
-            "Using type() instead of isinstance()Not Using Context Managers",
-            "String Concatenation in Loops",
-            "Checking len() Instead of Truthiness",
-            "Using list as a Stack or Queue",
-            "Overusing Global Variables",
-            "Not Using Enumerate",
-            "Returning None Implicitly vs Explicitly",
-        ],
-        value="Mutable Default Arguments",
-        label="📚 Choose an Antipattern",
-        full_width=True,
+def __(mo):
+    mo.md(
+        """
+        # Using resample for date aggregations
+
+        ```python
+        # Anti-pattern: manual date groupby
+        df['month'] = df['date'].dt.month
+        df['year'] = df['date'].dt.year
+        monthly = df.groupby(['year', 'month'])['value'].sum()
+        # Result has a MultiIndex — awkward to work with
+
+        # Pythonic: resample preserves the DatetimeIndex
+        df = df.set_index('date')
+        monthly = df['value'].resample('ME').sum()
+        weekly_mean = df['value'].resample('W').mean()
+        ```
+        """
     )
-    return (antipattern_topics,)
+    return
 
 
 @app.cell
-def anti_patterns_list():
-    antipatterns = {
-        "Using type() instead of isinstance()": {
-            "emoji": "🔍",
-            "description": """
-
-            """,
-            "bad_code": """\
-
-    """,
-            "good_code": """\
-
-    """,
-            "tip": "💡 ",
-        },
-        "Not Using Context Managers": {
-            "emoji": "📂",
-            "description": """
-    Manually managing resources (files, DB connections, locks) is error-prone.
-    If an exception occurs before `.close()`, the resource **leaks**.
-    **Context managers** (`with` statements) guarantee cleanup.
-            """,
-            "bad_code": """\
-    # ❌ Antipattern: manual resource management
-    f = open("data.txt", "w")
-    f.write("hello")
-    # If an exception occurs here, f.close() is never called!
-    f.close()
-    """,
-            "good_code": """\
-    # ✅ Fix: use a context manager — file is always closed
-    with open("data.txt", "w") as f:
-        f.write("hello")
-    # f is automatically closed here, even if an exception occurs
-
-    # You can also write your own context managers:
-    from contextlib import contextmanager
-
-    @contextmanager
-    def managed_resource():
-        print("Acquiring resource")
-        try:
-            yield "resource"
-        finally:
-            print("Releasing resource")  # Always runs
-
-    with managed_resource() as r:
-        print(f"Using {r}")
-    """,
-            "tip": "💡 Use `with` statements for files, database connections, locks, and any resource that needs cleanup.",
-        },
-        "String Concatenation in Loops": {
-            "emoji": "🔗",
-            "description": """
-    Strings in Python are **immutable**. Each `+=` creates a brand-new string object,
-    copying all previous content. In a loop, this results in **O(n²)** time complexity.
-            """,
-            "bad_code": """\
-    # ❌ Antipattern: O(n²) string concatenation in a loop
-    words = ["Python", "is", "awesome", "and", "fast"]
-
-    result = ""
-    for word in words:
-        result += word + " "   # Creates a new string every iteration!
-
-    print(result.strip())
-    """,
-            "good_code": """\
-    # ✅ Fix 1: use str.join() — O(n) and idiomatic
-    words = ["Python", "is", "awesome", "and", "fast"]
-    result = " ".join(words)
-    print(result)
-
-    # ✅ Fix 2: collect into a list, then join
-    parts = []
-    for word in words:
-        parts.append(word.upper())
-    result2 = " ".join(parts)
-    print(result2)
-
-    # ✅ Fix 3: use a list comprehension + join
-    result3 = " ".join(w.upper() for w in words)
-    print(result3)
-    """,
-            "tip": "💡 Use `str.join()` to concatenate strings. It is O(n) and far more readable than repeated `+=`.",
-        },
-        "Checking len() Instead of Truthiness": {
-            "emoji": "📏",
-            "description": """
-    In Python, empty containers (`[]`, `{}`, `""`, `()`) are **falsy** by default.
-    Checking `len(x) == 0` is verbose and not Pythonic. Just use the object directly in a boolean context.
-            """,
-            "bad_code": """\
-    # ❌ Antipattern: explicitly checking length
-    my_list = []
-
-    if len(my_list) == 0:
-        print("List is empty")
-
-    if len(my_list) > 0:
-        print("List has items")
-
-    # Also bad: len(x) != 0
-    """,
-            "good_code": """\
-    # ✅ Fix: leverage Python's truthiness
-    my_list = []
-
-    if not my_list:
-        print("List is empty ✓")
-
-    my_list = [1, 2, 3]
-    if my_list:
-        print("List has items ✓")
-
-    # Works for dicts, sets, strings, tuples too!
-    my_dict = {}
-    if not my_dict:
-        print("Dict is empty ✓")
-    """,
-            "tip": "💡 Python containers implement `__bool__` or `__len__`. Trust the truthiness model — it's faster and more readable.",
-        },
-        "Overusing Global Variables": {
-            "emoji": "🌐",
-            "description": """
-    Global variables create **hidden dependencies** between functions, making code hard to test,
-    debug, and reason about. Functions that rely on globals are not self-contained.
-            """,
-            "bad_code": """\
-    # ❌ Antipattern: relying on and mutating global state
-    counter = 0
-
-    def increment():
-        global counter
-        counter += 1
-
-    def reset():
-        global counter
-        counter = 0
-
-    increment()
-    increment()
-    print(counter)  # 2 — but any function anywhere can change this!
-    """,
-            "good_code": """\
-    # ✅ Fix 1: pass state as parameters and return results
-    def increment(counter):
-        return counter + 1
-
-    def reset():
-        return 0
-
-    counter = 0
-    counter = increment(counter)
-    counter = increment(counter)
-    print(counter)  # 2 ✓
-
-    # ✅ Fix 2: encapsulate state in a class
-    class Counter:
-        def __init__(self):
-            self._value = 0
-
-        def increment(self):
-            self._value += 1
-
-        def reset(self):
-            self._value = 0
-
-        @property
-        def value(self):
-            return self._value
-
-    c = Counter()
-    c.increment()
-    c.increment()
-    print(c.value)  # 2 ✓
-    """,
-            "tip": "💡 Pass state explicitly as function arguments. If you need shared state, encapsulate it in a class.",
-        },
-        "Not Using Enumerate": {
-            "emoji": "🔢",
-            "description": """
-    Manually managing an index variable alongside a loop is verbose and error-prone.
-    Python's built-in `enumerate()` gives you both the index and the value cleanly.
-            """,
-            "bad_code": """\
-    # ❌ Antipattern: manual index tracking
-    fruits = ["apple", "banana", "cherry"]
-
-    i = 0
-    for fruit in fruits:
-        print(f"{i}: {fruit}")
-        i += 1
-
-    # Also bad: range(len(...))
-    for i in range(len(fruits)):
-        print(f"{i}: {fruits[i]}")
-    """,
-            "good_code": """\
-    # ✅ Fix: use enumerate()
-    fruits = ["apple", "banana", "cherry"]
-
-    for i, fruit in enumerate(fruits):
-        print(f"{i}: {fruit}")
-
-    # You can also set the start index
-    for i, fruit in enumerate(fruits, start=1):
-        print(f"{i}. {fruit}")
-    """,
-            "tip": "💡 Prefer `enumerate()` over `range(len(...))`. It's more readable and less error-prone.",
-        },
-        "Returning None Implicitly vs Explicitly": {
-            "emoji": "🕳️",
-            "description": """
-    Functions that sometimes return a value and sometimes return `None` implicitly
-    create confusing APIs. Be explicit about what a function returns — always.
-            """,
-            "bad_code": """\
-    # ❌ Antipattern: inconsistent return values
-    def find_user(users, name):
-        for user in users:
-            if user["name"] == name:
-                return user
-        # Implicitly returns None — caller may not realize this!
-
-    users = [{"name": "Alice"}, {"name": "Bob"}]
-    result = find_user(users, "Charlie")
-    print(result["name"])  # 💥 TypeError: NoneType has no attribute 'name'
-    """,
-            "good_code": '''\
-    # ✅ Fix 1: return None explicitly and document it
-    def find_user(users, name):
-        """Returns user dict or None if not found."""
-        for user in users:
-            if user["name"] == name:
-                return user
-        return None  # Explicit is better than implicit
-
-    users = [{"name": "Alice"}, {"name": "Bob"}]
-    result = find_user(users, "Charlie")
-    if result is not None:
-        print(result["name"])
-    else:
-        print("User not found")
-
-    # ✅ Fix 2: raise an exception for truly unexpected absence
-    def get_user(users, name):
-        for user in users:
-            if user["name"] == name:
-                return user
-        raise ValueError(f"User {name!r} not found")
-    ''',
-            "tip": "💡 Always return explicitly. Consider raising exceptions for error cases instead of returning `None`.",
-        },
-    }
-    return (antipatterns,)
+def __(mo):
+    mo.md(
+        """
+        # Summary and closing remarks
+        - Use linters, they are cool
+        - Be mindful when approaching a common problem for which an idiomatic, widely-accepted solution might exist. 
+        - Spending time learning, rather than building stuff, is not a bad idea. You might end up writing beatiful, elegant, and reliable code.
+        """
+    )
+    return
 
 
 @app.cell
