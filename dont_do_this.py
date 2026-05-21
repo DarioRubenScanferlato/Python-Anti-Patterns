@@ -11,10 +11,11 @@ app = marimo.App(
 
 @app.cell
 def imports():
-    import marimo as mo
-    from PIL import Image, ImageDraw
     import math
     import random
+
+    import marimo as mo
+    from PIL import Image, ImageDraw
     return Image, ImageDraw, math, mo, random
 
 
@@ -39,7 +40,6 @@ def __(mo):
             self.tip = tip
             self.info = info
 
-
         def _code_block(self, text):
 
             return mo.md(f"""
@@ -61,13 +61,12 @@ def __(mo):
     ```python
     {text}
     ```
-    """
-            )
+    """)
 
         def _tip_div(self):
             if self.tip is not None:
                 return mo.Html(f"""
-    <div style="background:#e8f4fd; border-left:4px solid #3b82f6; 
+    <div style="background:#e8f4fd; border-left:4px solid #3b82f6;
                 padding:20px 16px; margin:0; border-radius:4px;">
       💡 {self.tip}
     </div>
@@ -76,7 +75,11 @@ def __(mo):
                 return ""
 
         def _header(self):
-            return f"##**{self.pattern_id}** - {self.title}" if self.pattern_id else f"## {self.title}"
+            return (
+                f"##**{self.pattern_id}** - {self.title}"
+                if self.pattern_id
+                else f"## {self.title}"
+            )
 
         def display(self):
             return mo.vstack(
@@ -253,7 +256,7 @@ def __():
 def about_me(mo):
     mo.hstack(
         [
-            mo.image("images/dario.jpg", width=400, style={'border-radius': '100%'}),
+            mo.image("images/dario.jpg", width=400, style={"border-radius": "100%"}),
             mo.md(
                 """# About me
                 - Data Scientist & Engineer
@@ -262,17 +265,18 @@ def about_me(mo):
                 - Volunteer of the Python Torino user group
                 - Talk to me about guitar, chess, and open-source
                 """
-            )
+            ),
         ],
-        gap=10
+        gap=10,
     )
     return
 
 
 @app.cell
 def intro_graph():
-    import matplotlib.pyplot as plt
     from datetime import datetime
+
+    import matplotlib.pyplot as plt
 
     # Data
     dates = [datetime(2026, 5, 29), datetime(2026, 5, 30)]
@@ -355,7 +359,7 @@ def anti_patterns_book(mo):
                 [
                     mo.md(r"""
     # Anti-patterns
-    An *anti-pattern* is a solution to a class of problem which may be commonly used but is likely to be ineffective or counterproductive. 
+    An *anti-pattern* is a solution to a class of problem which may be commonly used but is likely to be ineffective or counterproductive.
     ### Anti-patterns lead to:
     * Bad Performance
     * Unreadable code
@@ -430,7 +434,7 @@ def __(AntiPatternSlide):
     print(append_to(2))   # [2]  ✓
     print(append_to(3))   # [3]  ✓
     """,
-        tip= """Do not use mutable data structures for argument defaults. They are created during function definition time. All calls to the function reuse this one instance of that data structure, persisting changes between them."""
+        tip="""Do not use mutable data structures for argument defaults. They are created during function definition time. All calls to the function reuse this one instance of that data structure, persisting changes between them.""",
     )
     return
 
@@ -452,8 +456,10 @@ def avoiding_antipatterns(mo):
 
 @app.cell
 def automatic_code_analysis(mo):
-    mo.hstack([mo.md(
-        """# Automatic code analysis tools
+    mo.hstack(
+        [
+            mo.md(
+                """# Automatic code analysis tools
     - A linter parses your code into an AST (Abstract Syntax Tree) and then walks that tree looking for nodes that match a known bad pattern. When it finds one, it emits a violation with the rule code, line number, and a message.
     - Linters can be configured enabling rule sets to detect specific types of errors
     - Anti-patterns detected by linters are identified with a code. The code is composed of one (or more) letter(s) that indicates the error category, and a number to differentiate within the category. For example, pylint uses the following:
@@ -463,14 +469,19 @@ def automatic_code_analysis(mo):
         - **E** — error
         - **F** — fatal
         """
-    ),
-    mo.image(src="http://media.makeameme.org/created/linter-and-formatter.jpg", width=600)])
+            ),
+            mo.image(
+                src="http://media.makeameme.org/created/linter-and-formatter.jpg",
+                width=600,
+            ),
+        ]
+    )
     return
 
 
 @app.cell
 def __(mo):
-    mo.image('images/linter error.gif')
+    mo.image("images/linter error.gif")
     return
 
 
@@ -490,7 +501,7 @@ def linter_setup_1(mo):
         }}
         </style>
         #Setting up an automated linter
-        Configuring a linter is pretty straightforward. I recommend [**ruff**](https://docs.astral.sh/ruff/) as it's very fast and has auto-fix capabilities. We can enable the linter to run every time we commit our code using pre-commit 
+        Configuring a linter is pretty straightforward. I recommend [**ruff**](https://docs.astral.sh/ruff/) as it's very fast and has auto-fix capabilities. We can enable the linter to run every time we commit our code using pre-commit
 
         Step 1: Install pre-commit and ruff
         ```bash
@@ -527,7 +538,7 @@ def linter_config(mo):
         ```toml
         [tool.ruff.lint]
         select = [
-            "E", 
+            "E",
             "W",
             ...
         ]
@@ -552,7 +563,7 @@ def __(AntiPatternSlide):
     AntiPatternSlide(
         title="Don't handle errors with bare except clauses",
         description="""
-    - Handling errors with a **bare `except:`** clause might be dangerous, as this syntax catches all exceptions, including `SystemExit`, `KeyboardInterrupt`, which makes it hard to interrupt the program and can disguise other problems. 
+    - Handling errors with a **bare `except:`** clause might be dangerous, as this syntax catches all exceptions, including `SystemExit`, `KeyboardInterrupt`, which makes it hard to interrupt the program and can disguise other problems.
     - Both pylint ([W0702](https://pylint.readthedocs.io/en/v3.3.9/user_guide/messages/warning/bare-except.html)) and ruff ([E722](https://docs.astral.sh/ruff/rules/bare-except/)) detect this kind of anti-pattern.
     - This anti-pattern is well-known and some people even proposed to disallow it in Python ([PEP76](https://peps.python.org/pep-0760/))
         """,
@@ -566,13 +577,13 @@ def __(AntiPatternSlide):
     except MoreSpecificException as e:
         handle_error(e)
 
-    # If you need to catch an unknown error use Exception 
+    # If you need to catch an unknown error use Exception
     try:
         some_other_fn()
     except Exception as e:
         print(f"This unexpected error occurred: {e}")
     """,
-        tip="Always catch specific exceptions. At minimum use `except Exception` or re-raise after logging."
+        tip="Always catch specific exceptions. At minimum use `except Exception` or re-raise after logging.",
     )
     return
 
@@ -607,7 +618,7 @@ def __(AntiPatternSlide):
     if isinstance(dog, Animal):  # evaluates to True
         print("What a magnificent beast!")
     """,
-        tip="Prefer `isinstance()` for type checks. It works correctly with subclasses and abstract base classes. You can also check if an object belongs to a list of classes, e.g. isinstance(my_animal, [Dog, Cat])"
+        tip="Prefer `isinstance()` for type checks. It works correctly with subclasses and abstract base classes. You can also check if an object belongs to a list of classes, e.g. isinstance(my_animal, [Dog, Cat])",
     )
     return
 
@@ -633,7 +644,7 @@ def __(mo):
     mo.hstack(
         [
             mo.md(
-        """
+                """
         # Data Structures
         - Learning about data structures and their implementation in Python makes you write faster and more efficient code.
         - Each data structure must be picked according to how you need to access and interact with your data.
@@ -644,9 +655,13 @@ def __(mo):
         > Reference: Effective Python by Brett Slatkin - Using Built-in Packages
         """
             ),
-            mo.image("https://m.media-amazon.com/images/I/81+g5+5nmWL._SL1500_.jpg", width=300, rounded=True)
+            mo.image(
+                "https://m.media-amazon.com/images/I/81+g5+5nmWL._SL1500_.jpg",
+                width=300,
+                rounded=True,
+            ),
         ],
-        gap=5
+        gap=5,
     )
     return
 
@@ -679,7 +694,7 @@ def __(AntiPatternSlide):
         item = queue.popleft()  # O(1) ✓
         print(f"Processing: {item}")
     """,
-        tip="Note that for LIFO (last in first out) queues, a list would actually be fine"
+        tip="Note that for LIFO (last in first out) queues, a list would actually be fine",
     )
     return
 
@@ -716,10 +731,7 @@ def __(mo):
         Q8 -->|No| R_T2([tuple])
         """)
 
-    mo.vstack([
-        mo.md("# Picking the right data structure"),
-        diagram
-    ], gap=5)
+    mo.vstack([mo.md("# Picking the right data structure"), diagram], gap=5)
     return (diagram,)
 
 
@@ -742,7 +754,7 @@ def __(AntiPatternSlide):
     for batch in batched(records, batch_size):
         process(batch)
     """,
-        tip="""While it might be debatable whether this is an anti-pattern, using batched is more readable, less error prone, and also applies to generators. The batched iterator allocates tuples rather than lists, which is slightly cheaper. Note that batched is only available on Python >3.12"""
+        tip="""While it might be debatable whether this is an anti-pattern, using batched is more readable, less error prone, and also applies to generators. The batched iterator allocates tuples rather than lists, which is slightly cheaper. Note that batched is only available on Python >3.12""",
     )
     return
 
@@ -752,7 +764,7 @@ def __(mo):
     mo.md(
         r"""
         # Performance anti-patterns
-        - Although some performance linting rules exist 
+        - Although some performance linting rules exist
         - Performance matters, but readability counts
         - Rather than optimizing prematurely, it's always better to profile your code to identify the bottleneck.
         - The standard package **cProfile** is a great place to start if you need to evaluate your code's performance.
@@ -774,51 +786,64 @@ def __(mo):
 
 
 @app.cell
-def __(mo):
+def pandas_intro(mo):
     mo.md(
         """
-        # Chaining pandas operations
-
-        ```python
-        # Anti-pattern: intermediate variables
-        df1 = df[df['age'] > 18]
-        df2 = df1.dropna(subset=['email'])
-        df3 = df2.rename(columns={'name': 'full_name'})
-        result = df3.reset_index(drop=True)
-
-        # Pythonic: method chaining
-        result = (
-            df
-            .query('age > 18')
-            .dropna(subset=['email'])
-            .rename(columns={'name': 'full_name'})
-            .reset_index(drop=True)
-        )
-        ```
+        # Pandas anti-patterns
+        - Pandas is one of the most widely used Python libraries for data analysis
+        - Its flexible API makes it easy to write code that is correct but slow or hard to read
+        - Several common Pandas anti-patterns have a simple, idiomatic fix that makes code faster and cleaner
         """
     )
     return
 
 
 @app.cell
-def __(mo):
-    mo.md(
-        """
-        # Using resample for date aggregations
+def __(AntiPatternSlide):
+    AntiPatternSlide(
+        title="Pandas chaining",
+        description="""Storing each transformation step in a new variable (`df1`, `df2`, …) clutters the namespace and
+    makes the data flow hard to follow. Pandas is designed for **method chaining** — every transformation
+    returns a DataFrame, so the steps can be composed in a single, readable expression.""",
+        bad_code="""\
+    df1 = df[df['age'] > 18]
+    df2 = df1.dropna(subset=['email'])
+    df3 = df2.rename(columns={'name': 'full_name'})
+    result = df3.reset_index(drop=True)
+    """,
+        good_code="""\
+    result = (
+        df
+        .query('age > 18')
+        .dropna(subset=['email'])
+        .rename(columns={'name': 'full_name'})
+        .reset_index(drop=True)
+    )
+    """,
+        tip="Wrap the chain in parentheses so you can break it across lines without backslashes. Each line reads like a sentence: filter, clean, rename, reindex.",
+    )
+    return
 
-        ```python
-        # Anti-pattern: manual date groupby
-        df['month'] = df['date'].dt.month
-        df['year'] = df['date'].dt.year
-        monthly = df.groupby(['year', 'month'])['value'].sum()
-        # Result has a MultiIndex — awkward to work with
 
-        # Pythonic: resample preserves the DatetimeIndex
-        df = df.set_index('date')
-        monthly = df['value'].resample('ME').sum()
-        weekly_mean = df['value'].resample('W').mean()
-        ```
-        """
+@app.cell
+def __(AntiPatternSlide):
+    AntiPatternSlide(
+        title="Use resample for time-based aggregations",
+        description="""Extracting year/month columns and calling `groupby` produces a **MultiIndex** result that is
+    cumbersome to plot and manipulate. When your index is a `DatetimeIndex`, `resample()` handles
+    all period logic for you and keeps the index clean.""",
+        bad_code="""\
+    df['month'] = df['date'].dt.month
+    df['year'] = df['date'].dt.year
+
+    monthly_total = df.groupby(['year', 'month'])['value'].sum()
+    """,
+        good_code="""\
+    df = df.set_index('date')
+    monthly_total = df['value'].resample('ME').sum()
+    weekly_mean = df['value'].resample('W').mean()
+    """,
+        tip="resample() accepts any pandas offset alias ('D', 'W', 'ME', 'QE', 'YE', …) and composes naturally with agg(), transform(), and method chaining.",
     )
     return
 
@@ -829,7 +854,7 @@ def __(mo):
         """
         # Summary and closing remarks
         - Use linters, they are cool
-        - Be mindful when approaching a common problem for which an idiomatic, widely-accepted solution might exist. 
+        - Be mindful when approaching a common problem for which an idiomatic, widely-accepted solution might exist.
         - Spending time learning, rather than building stuff, is not a bad idea. You might end up writing beatiful, elegant, and reliable code.
         """
     )
@@ -837,7 +862,28 @@ def __(mo):
 
 
 @app.cell
-def __():
+def __(mo):
+    import qrcode
+    import io
+    import base64
+
+    url = "https://github.com/DarioRubenScanferlato/Python-Anti-Patterns"
+
+    buf = io.BytesIO()
+    qrcode.make(url).save(buf, format="PNG")
+    b64 = base64.b64encode(buf.getvalue()).decode()
+
+    mo.vstack([
+        mo.md("# Link to the presentation (GitHub)"),
+        mo.Html(f'<img src="data:image/png;base64,{b64}" width="600"/>')
+    ],
+            align='center')
+    return b64, base64, buf, io, qrcode, url
+
+
+@app.cell
+def __(mo):
+    mo.md("""# References""")
     return
 
 

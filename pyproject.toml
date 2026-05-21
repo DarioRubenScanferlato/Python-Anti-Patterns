@@ -17,7 +17,7 @@ line-length = 88
 
 [tool.ruff.lint]
 select = [
-    "E", 
+    "E",
     "W",    # pycodestyle - style
     "F",         # pyflakes - correctness
     "B",         # bugbear - bugs & anti-patterns  ← high value
@@ -33,5 +33,6 @@ select = [
 
 ignore = [
     "N807",
+    "N803",
     "E501"
 ]
