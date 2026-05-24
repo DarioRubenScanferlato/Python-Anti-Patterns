@@ -13,10 +13,12 @@ app = marimo.App(
 def imports():
     import math
     import random
+    import pandas as pd
+    import numpy as np
 
     import marimo as mo
     from PIL import Image, ImageDraw
-    return Image, ImageDraw, math, mo, random
+    return Image, ImageDraw, math, mo, np, pd, random
 
 
 @app.cell
@@ -255,7 +257,7 @@ def chi_sono(mo):
             mo.md(
                 """# Chi sono
                 - Data Scientist & Engineer
-                - Sviluppo algoritmi in Python per rilevare anomalie e simulaziore il funzionamento di turbine a gas
+                - Sviluppo algoritmi in Python per rilevare anomalie e simulare il funzionamento di turbine a gas
                 - MSc in Ingegneria e Management al Politecnico di Torino
                 - Volontario del gruppo utenti Python Torino
                 - Potete parlarmi di chitarra, scacchi e open-source :)
@@ -369,6 +371,11 @@ def anti_patterns_in_python_intro(mo):
         - Python è un linguaggio flessibile che ci permette di raggiungere i nostri obiettivi in molti modi diversi
         - Questa flessibilità può essere un'arma a doppio taglio
         - Secondo lo Zen di Python, dovrebbe esserci un solo modo ovvio per risolvere un problema
+
+        <br />
+        > There should be one - and preferably only one - obvious way to do it.
+        > Although that way may not be obvious at first unless you're Dutch.
+        > (Tim Peters - The Zen of Python)
         """
     )
     return
@@ -693,7 +700,15 @@ def diagramma_mermaid(mo):
         Q8 -->|No| R_T2([tuple])
         """)
 
-    mo.vstack([mo.md("# Scegliere la struttura dati giusta"), diagram], gap=5)
+    mo.vstack(
+        [
+            mo.md("# Come scegliere la struttura dati più adatta"),
+            diagram,
+        ],
+    ).style({
+        "width": "1400px",
+        "max-width": "none"
+    })
     return (diagram,)
 
 
@@ -747,18 +762,42 @@ def method_chaining(AntiPatternSlide):
         df3 = df2.rename(columns={'name': 'full_name'})
         return df3.reset_index(drop=True)
     """,
-        good_code="""def prepare_data(df):
+        good_code="""def calculate_age(df):
+        now = pd.Timestamp.today()
+        df['age'] = (now - df['date_of_birth']).dt.days // 365
+        # You can also use the assign method to add columns within a chain!
+        # df = df.assign(age=lambda d: (now - d["date_of_birth"]).dt.days // 365)
+        return df
+
+    def prepare_data(df):
         return (
-        df.assign(age=lambda d: (pd.Timestamp.today() - d["date_of_birth"]).dt.days // 365)
-        .query('age > 18')
-        .dropna(subset=['email'])
-        .rename(columns={'name': 'full_name'})
-        .reset_index(drop=True)
-    )
+        df
+            .pipe(calculate_age)
+            .query('age > 18')
+            .dropna(subset=['email'])
+            .rename(columns={'name': 'full_name'})
+            .reset_index(drop=True)
+        )
     """,
-        tip="Check out the methods assign, query, pipe, ",
+        tip="The methods assign, query, pipe can help you rewrite your step-by-step operations in a single chained statement",
     )
     return
+
+
+@app.cell
+def __(mo, np, pd):
+    dates = pd.date_range('2025-12-25', '2026-01-10', freq='D')
+    values = np.random.randn(len(dates))
+
+    df = pd.DataFrame({
+        'date': dates,
+        'value': values
+    })
+
+    mo.vstack(
+        [mo.md('### Supponiamo di dover aggregare per mese o per settimana i seguenti valori'), df], align='center'
+    )
+    return dates, df, values
 
 
 @app.cell
@@ -772,6 +811,8 @@ def resample(AntiPatternSlide):
     df['year'] = df['date'].dt.year
 
     monthly_total = df.groupby(['year', 'month'])['value'].sum()
+    # Using this approach, calculating the weekly total becomes tricky
+    # weeks that are in-between two years will be aggregated as two different records
     """,
         good_code="""\
     df = df.set_index('date')
@@ -788,9 +829,9 @@ def conclusioni(mo):
     mo.md(
         """
         # Conclusioni
-        - Usa i linter, sono fantastici
+        - Usa un linter se non lo stai già facendo
         - Fai attenzione quando affronti un problema comune: potrebbe esistere una soluzione idiomatica e ampiamente accettata.
-        - Dedicare tempo all'apprendimento, invece di costruire subito, non è una cattiva idea. Potresti finire per scrivere codice bello, elegante e affidabile.
+        - Sebbene lavorare su progetti sia un ottimo metodo per migliorare le nostre abilità come developer, dedicare tempo all'apprendimento di tecniche di programmazione, Python e delle librerie con cui si lavora è uno step fondamentale.
         """
     )
     return

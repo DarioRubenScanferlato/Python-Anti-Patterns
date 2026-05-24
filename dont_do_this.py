@@ -13,10 +13,12 @@ app = marimo.App(
 def imports():
     import math
     import random
+    import pandas as pd
+    import numpy as np
 
     import marimo as mo
     from PIL import Image, ImageDraw
-    return Image, ImageDraw, math, mo, random
+    return Image, ImageDraw, math, mo, np, pd, random
 
 
 @app.cell
@@ -50,12 +52,15 @@ def __(mo):
         border-radius: 10px;
         padding: 14px;
         overflow-x: auto;
+        font-size: 24px
     }}
 
-    code {{
-        font-family: "JetBrains Mono", monospace;
-        font-size: 14px;
+    pre code {{
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 24px !important;
+        line-height: 1.5 !important;
     }}
+
     </style>
 
     ```python
@@ -307,7 +312,7 @@ def agenda(mo):
 
         - Introduce design patterns and anti-patterns
         - Explain how to detect anti-patterns with linters
-        - Learn about Python features through some anti-patterns examples
+        - Learn about Python and its libraries through some anti-patterns examples
         - Provide some guidance on how to avoid anti-patterns
         """
     )
@@ -386,6 +391,8 @@ def anti_patterns_examples(mo):
         - **God object**: A single class handles all control in a program rather than control being distributed across multiple classes.
         - **Magic number**: A literal value with an important yet unexplained meaning which could be replaced with a named constant.
         - **Big Ball of Mud**: A software system that lacks a perceivable architecture.
+        - **Spaghetti code**: codice con un flusso incomprensibile 
+        > [Anti-Pattern - Wikipedia](https://it.wikipedia.org/wiki/Anti-pattern)
         """
     )
     return
@@ -399,6 +406,10 @@ def anti_patterns_in_python_intro(mo):
         - Python is a flexible language that allows us to achieve our programming goals in many different ways
         - This flexibility can be a double-edged sword
         - According to the Zen of Python, there should only be one obvious way to fix a problem
+        <br />
+        > There should be one - and preferably only one - obvious way to do it.
+        > Although that way may not be obvious at first unless you're Dutch.
+        > (Tim Peters - The Zen of Python)
         """
     )
     return
