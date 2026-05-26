@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.8.22"
+__generated_with = "0.23.4"
 app = marimo.App(
     width="medium",
     app_title="Non farlo",
@@ -18,6 +18,7 @@ def imports():
 
     import marimo as mo
     from PIL import Image, ImageDraw
+
     return Image, ImageDraw, math, mo, np, pd, random
 
 
@@ -101,6 +102,7 @@ def definizione_slide(mo):
 
         def _repr_html_(self):
             return self.display().text
+
     return (AntiPatternSlide,)
 
 
@@ -208,7 +210,8 @@ def g_1(Image, ImageDraw, math, random):
             )
 
         return img
-    return draw_jagged_grid, normalize
+
+    return (draw_jagged_grid,)
 
 
 @app.cell
@@ -224,7 +227,7 @@ def generazione_cover(draw_jagged_grid):
         spacing=80,
     )
     jagged_image.save("images/cover.png")
-    return (jagged_image,)
+    return
 
 
 @app.cell
@@ -271,30 +274,26 @@ def chi_sono(mo):
 
 @app.cell
 def agenda(mo):
-    mo.md(
-        """
-        # Agenda
+    mo.md("""
+    # Agenda
 
-        - Introduzione ai concetti di design pattern e anti-pattern
-        - Come usare i linter per migliorare la qualità del nostro codice
-        - Spiegazione di alcuni esempi di anti-pattern in Python 
-        - Consigli pratici su come evitare gli anti-pattern
-        """
-    )
+    - Introduzione ai concetti di design pattern e anti-pattern
+    - Come usare i linter per migliorare la qualità del nostro codice
+    - Spiegazione di alcuni esempi di anti-pattern in Python
+    - Consigli pratici su come evitare gli anti-pattern
+    """)
     return
 
 
 @app.cell
 def design_patterns_book(mo):
-    mo.md(
-        """
-        # Design pattern
-        > ###I design pattern sono soluzioni tipiche a problemi ricorrenti nella progettazione del software. Ogni pattern è un modello che puoi adattare per risolvere un particolare problema di design nel tuo codice.
-        <p align="center">
-            <img src="https://m.media-amazon.com/images/I/81IGFC6oFmL._SL1500_.jpg" alt="Design Patterns book cover" width="400"/>
-        </p>
-        """
-    )
+    mo.md("""
+    # Design pattern
+    > ###I design pattern sono soluzioni tipiche a problemi ricorrenti nella progettazione del software. Ogni pattern è un modello che puoi adattare per risolvere un particolare problema di design nel tuo codice.
+    <p align="center">
+        <img src="https://m.media-amazon.com/images/I/81IGFC6oFmL._SL1500_.jpg" alt="Design Patterns book cover" width="400"/>
+    </p>
+    """)
     return
 
 
@@ -350,34 +349,30 @@ def anti_patterns_book(mo):
 
 @app.cell
 def anti_patterns_examples(mo):
-    mo.md(
-        r"""
-        # Esempi di anti-pattern nella programmazione software
-        - **God object**: implementare una grossa funzionalità in un unico oggetto che esegue tutte le operazioni, invece che in più oggetti che si dividono il compito.
-        - **Magic number**: inserire costanti negli algoritmi senza documentarne il significato o lo scopo
-        - **Big Ball of Mud**: Un sistema software privo di un'architettura percepibile.
-        - **Spaghetti code**: codice con un flusso incomprensibile 
-        > Fonte: [Anti-Pattern - Wikipedia](https://it.wikipedia.org/wiki/Anti-pattern)
-        """
-    )
+    mo.md(r"""
+    # Esempi di anti-pattern nella programmazione software
+    - **God object**: implementare una grossa funzionalità in un unico oggetto che esegue tutte le operazioni, invece che in più oggetti che si dividono il compito.
+    - **Magic number**: inserire costanti negli algoritmi senza documentarne il significato o lo scopo
+    - **Big Ball of Mud**: Un sistema software privo di un'architettura percepibile.
+    - **Spaghetti code**: codice con un flusso incomprensibile
+    > Fonte: [Anti-Pattern - Wikipedia](https://it.wikipedia.org/wiki/Anti-pattern)
+    """)
     return
 
 
 @app.cell
 def anti_patterns_in_python_intro(mo):
-    mo.md(
-        """
-        # Anti-pattern in Python
-        - Python è un linguaggio flessibile che ci permette di raggiungere i nostri obiettivi in molti modi diversi
-        - Questa flessibilità può essere un'arma a doppio taglio
-        - Secondo lo Zen di Python, dovrebbe esserci un solo modo ovvio per risolvere un problema
+    mo.md("""
+    # Anti-pattern in Python
+    - Python è un linguaggio flessibile che ci permette di raggiungere i nostri obiettivi in molti modi diversi
+    - Questa flessibilità può essere un'arma a doppio taglio
+    - Secondo lo Zen di Python, dovrebbe esserci un solo modo ovvio per risolvere un problema
 
-        <br />
-        > There should be one - and preferably only one - obvious way to do it.
-        > Although that way may not be obvious at first unless you're Dutch.
-        > (Tim Peters - The Zen of Python)
-        """
-    )
+    <br />
+    > There should be one - and preferably only one - obvious way to do it.
+    > Although that way may not be obvious at first unless you're Dutch.
+    > (Tim Peters - The Zen of Python)
+    """)
     return
 
 
@@ -416,16 +411,14 @@ def mutable_defaults(AntiPatternSlide):
 
 @app.cell
 def evitare_antipatterns(mo):
-    mo.md(
-        """
-        # Come evitare gli anti-pattern in Python?
-        - Usa strumenti di analisi statica del codice (pylint, ruff)
-        - Impara a riconoscere errori comuni — come punto di partenza, consulta il [Little Book of Python Anti-Patterns](https://github.com/quantifiedcode/python-anti-patterns/blob/master/docs/The-Little-Book-Of-Python-Anti-Patterns.pdf)
-        - Migliora la tua conoscenza generale della programmazione (strutture dati, algoritmi, principi, pattern)
-        - Impara di più sui moduli standard di Python e quelli che utilizzi frequentemente
-        - Chiedi a un esperto (o usa un LLM) di revisionare il tuo codice
-        """
-    )
+    mo.md("""
+    # Come evitare gli anti-pattern in Python?
+    - Usa strumenti di analisi statica del codice (pylint, ruff)
+    - Impara a riconoscere errori comuni — come punto di partenza, consulta il [Little Book of Python Anti-Patterns](https://github.com/quantifiedcode/python-anti-patterns/blob/master/docs/The-Little-Book-Of-Python-Anti-Patterns.pdf)
+    - Migliora la tua conoscenza generale della programmazione (strutture dati, algoritmi, principi, pattern)
+    - Impara di più sui moduli standard di Python e quelli che utilizzi frequentemente
+    - Chiedi a un esperto (o usa un LLM) di revisionare il tuo codice
+    """)
     return
 
 
@@ -462,41 +455,39 @@ def errore_linter(mo):
 
 @app.cell
 def configurare_linter(mo):
-    mo.md(
-        """
-        <style>
-        pre {
-            background-color: #f3f4f6 !important;
-            padding: 12px;
-            border-radius: 8px;
-        }
-        code {{
-            font-family: "JetBrains Mono", monospace;
-            font-size: 14px;
-        }}
-        </style>
-        # Come automatizzare i controlli con un linter
-        Configurare un linter è piuttosto semplice. Consiglio [**ruff**](https://docs.astral.sh/ruff/) perché è molto veloce e ha capacità di auto-correzione. Possiamo abilitarlo per eseguirlo ad ogni commit usando pre-commit.
+    mo.md("""
+    <style>
+    pre {
+        background-color: #f3f4f6 !important;
+        padding: 12px;
+        border-radius: 8px;
+    }
+    code {{
+        font-family: "JetBrains Mono", monospace;
+        font-size: 14px;
+    }}
+    </style>
+    # Come automatizzare i controlli con un linter
+    Configurare un linter è piuttosto semplice. Consiglio [**ruff**](https://docs.astral.sh/ruff/) perché è molto veloce e ha capacità di auto-correzione. Possiamo abilitarlo per eseguirlo ad ogni commit usando pre-commit.
 
-        Passo 1: Installa pre-commit e ruff
-        ```bash
-        pip install pre-commit ruff
-        ```
-        Passo 2: Crea .pre-commit-config.yaml
-        ```yaml
-        repos:
-          - repo: https://github.com/astral-sh/ruff-pre-commit
-            rev: v0.5.0
-            hooks:
-              - id: ruff
-              - id: ruff-format # Not related to linting, but useful nonetheless
-        ```
-        Passo 3: Abilita pre-commit
-        ```bash
-        pre-commit install
-        ```
-        """
-    )
+    Passo 1: Installa pre-commit e ruff
+    ```bash
+    pip install pre-commit ruff
+    ```
+    Passo 2: Crea .pre-commit-config.yaml
+    ```yaml
+    repos:
+      - repo: https://github.com/astral-sh/ruff-pre-commit
+        rev: v0.5.0
+        hooks:
+          - id: ruff
+          - id: ruff-format # Not related to linting, but useful nonetheless
+    ```
+    Passo 3: Abilita pre-commit
+    ```bash
+    pre-commit install
+    ```
+    """)
     return
 
 
@@ -600,16 +591,14 @@ def type_vs_isinstance(AntiPatternSlide):
 
 @app.cell
 def oltre_i_linter(mo):
-    mo.md(
-        """
-        # Oltre i linter
-        - I linter aiutano a identificare miglioramenti nel codice, ma non ci rendono magicamente dei grandi sviluppatori.
-        - I linter non riescono a identificare decisioni sbagliate di design (e.g. struttura del codice), anche se puoi configurare limiti sulla complessità
-        - Spesso non rilevano scelte inappropriate per strutture dati e algoritmi
-        - Non possono sostituire buone abitudini di sviluppo (es. versionare il codice, avere un ambiente riproducibile, scrivere unit-test)
-        - È possibile scrivere codice pessimo che supera tutti i controlli di un linter
-        """
-    )
+    mo.md("""
+    # Oltre i linter
+    - I linter aiutano a identificare miglioramenti nel codice, ma non ci rendono magicamente dei grandi sviluppatori.
+    - I linter non riescono a identificare decisioni sbagliate di design (e.g. struttura del codice), anche se puoi configurare limiti sulla complessità
+    - Spesso non rilevano scelte inappropriate per strutture dati e algoritmi
+    - Non possono sostituire buone abitudini di sviluppo (es. versionare il codice, avere un ambiente riproducibile, scrivere unit-test)
+    - È possibile scrivere codice pessimo che supera tutti i controlli di un linter
+    """)
     return
 
 
@@ -709,7 +698,7 @@ def diagramma_mermaid(mo):
         "width": "1400px",
         "max-width": "none"
     })
-    return (diagram,)
+    return
 
 
 @app.cell
@@ -738,13 +727,11 @@ def builtin_packages(AntiPatternSlide):
 
 @app.cell
 def librerie(mo):
-    mo.md(
-        r"""
-        # Utilizza le librerie efficacemente
-        - Capire il funzionamento interno dei package ti fa scrivere codice più efficiente
-        - Sii consapevole degli strumenti, dei flussi di lavoro e dei pattern comuni usati per risolvere i problemi
-        """
-    )
+    mo.md(r"""
+    # Utilizza le librerie efficacemente
+    - Capire il funzionamento interno dei package ti fa scrivere codice più efficiente
+    - Sii consapevole degli strumenti, dei flussi di lavoro e dei pattern comuni usati per risolvere i problemi
+    """)
     return
 
 
@@ -785,7 +772,7 @@ def method_chaining(AntiPatternSlide):
 
 
 @app.cell
-def __(mo, np, pd):
+def _(mo, np, pd):
     dates = pd.date_range('2025-12-25', '2026-01-10', freq='D')
     values = np.random.randn(len(dates))
 
@@ -797,7 +784,7 @@ def __(mo, np, pd):
     mo.vstack(
         [mo.md('### Supponiamo di dover aggregare per mese o per settimana i seguenti valori'), df], align='center'
     )
-    return dates, df, values
+    return
 
 
 @app.cell
@@ -816,7 +803,7 @@ def resample(AntiPatternSlide):
     """,
         good_code="""\
     df = df.set_index('date')
-    monthly_total = df['value'].resample('ME').sum()
+    monthly_total = df['value'].resample('MS').sum() # MS stands for Month Start
     weekly_mean = df['value'].resample('W').mean()
     """,
         tip="resample() accetta qualsiasi alias di offset pandas ('D', 'W', 'ME', 'QE', 'YE', …) e si compone naturalmente con groupby(), agg(), transform() e il method chaining."
@@ -826,34 +813,30 @@ def resample(AntiPatternSlide):
 
 @app.cell
 def conclusioni(mo):
-    mo.md(
-        """
-        # Conclusioni
-        - Usa un linter se non lo stai già facendo
-        - Fai attenzione quando affronti un problema comune: potrebbe esistere una soluzione idiomatica e ampiamente accettata.
-        - Sebbene lavorare su progetti sia un ottimo metodo per migliorare le nostre abilità come developer, dedicare tempo all'apprendimento di tecniche di programmazione, Python e delle librerie con cui si lavora è uno step fondamentale.
-        """
-    )
+    mo.md("""
+    # Conclusioni
+    - Usa un linter se non lo stai già facendo
+    - Fai attenzione quando affronti un problema comune: potrebbe esistere una soluzione idiomatica e ampiamente accettata.
+    - Sebbene lavorare su progetti sia un ottimo metodo per migliorare le nostre abilità come developer, dedicare tempo all'apprendimento di tecniche di programmazione, Python e delle librerie con cui si lavora è uno step fondamentale.
+    """)
     return
 
 
 @app.cell
-def __(mo):
-    mo.md(
-        r"""
-        # Fonti e altre cose interessanti
-        ### Libri
-        - [Design Patterns: Elements of Reusable Object-Oriented Software (1994)](https://en.wikipedia.org/wiki/Design_Patterns)
-        - [AntiPatterns: Refactoring Software, Architectures, and Projects in Crisis (1998)](https://en.wikipedia.org/wiki/AntiPatterns)
-        - [Effective Python: 125 Specific Ways to Write Better Python (2022)](https://effectivepython.com/)
-        ### Risorse
-        - [Design Patterns - refactoring.guru](https://refactoring.guru/design-patterns)
-        - [The Little Book of Python Anti-Patterns](https://docs.quantifiedcode.com/python-anti-patterns/index.html)
-        ### Video
-        - [Write faster Python! Common performance anti patterns - Anthony Shaw - PyCon US 2022](https://www.youtube.com/watch?v=YY7yJHo0M5I)
-        - [Don't do that! - Laurenz Albe - Postgres Conference Europe 2025](https://www.youtube.com/watch?v=EKjUd7FUBSc) (non c'entra una fava con Python ma ha ispirato questo talk)
-        """
-    )
+def _(mo):
+    mo.md(r"""
+    # Fonti e altre cose interessanti
+    ### Libri
+    - [Design Patterns: Elements of Reusable Object-Oriented Software (1994)](https://en.wikipedia.org/wiki/Design_Patterns)
+    - [AntiPatterns: Refactoring Software, Architectures, and Projects in Crisis (1998)](https://en.wikipedia.org/wiki/AntiPatterns)
+    - [Effective Python: 125 Specific Ways to Write Better Python (2022)](https://effectivepython.com/)
+    ### Risorse
+    - [Design Patterns - refactoring.guru](https://refactoring.guru/design-patterns)
+    - [The Little Book of Python Anti-Patterns](https://docs.quantifiedcode.com/python-anti-patterns/index.html)
+    ### Video
+    - [Write faster Python! Common performance anti patterns - Anthony Shaw - PyCon US 2022](https://www.youtube.com/watch?v=YY7yJHo0M5I)
+    - [Don't do that! - Laurenz Albe - Postgres Conference Europe 2025](https://www.youtube.com/watch?v=EKjUd7FUBSc) (non c'entra una fava con Python ma ha ispirato questo talk)
+    """)
     return
 
 

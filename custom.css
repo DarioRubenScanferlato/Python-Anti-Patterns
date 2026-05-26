@@ -2,7 +2,21 @@
     font-size: 20px;
 }
 
+/* Center all slide titles. h1/h2 are used as slide / section headings;
+   leave h3+ alone since they appear inline (e.g. subtitles, column heads). */
+.markdown h1,
+.markdown h2 {
+    text-align: center;
+}
+
 .mermaid svg {
     width: 1400px !important;
     height: auto !important;
+}
+
+/* Let hstack flex children shrink past their content size so wide <pre>
+   blocks (e.g. cProfile output with long paths) scroll horizontally
+   instead of pushing the column wider. */
+div[style*="flex:"] {
+    min-width: 0;
 }
