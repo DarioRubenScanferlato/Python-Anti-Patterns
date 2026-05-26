@@ -13,10 +13,3 @@
     width: 1400px !important;
     height: auto !important;
 }
-
-/* Let hstack flex children shrink past their content size so wide <pre>
-   blocks (e.g. cProfile output with long paths) scroll horizontally
-   instead of pushing the column wider. */
-div[style*="flex:"] {
-    min-width: 0;
-}

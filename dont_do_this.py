@@ -10,16 +10,44 @@ app = marimo.App(
 
 
 @app.cell
+def linter_setup_1(mo):
+    mo.md("""
+    ##Automating linter checks
+    Configuring a linter is pretty straightforward. I recommend [**ruff**](https://docs.astral.sh/ruff/) as it's very fast and has auto-fix capabilities. We can enable the linter to run every time we commit our code using pre-commit
+
+    Step 1: Install pre-commit and ruff
+    ```bash
+    pip install pre-commit ruff
+    ```
+    Step 2: Create .pre-commit-config.yaml
+    ```yaml
+    repos:
+      - repo: https://github.com/astral-sh/ruff-pre-commit
+        rev: v0.5.0
+        hooks:
+          - id: ruff
+          - id: ruff-format
+    ```
+    Step 3: Enable pre-commit
+    ```bash
+    pre-commit install
+    ```
+    """)
+    return
+
+
+@app.cell
 def imports():
     import math
     import random
     import pandas as pd
     import numpy as np
-
+    import qrcode
+    import base64
     import marimo as mo
     from PIL import Image, ImageDraw
 
-    return Image, ImageDraw, math, mo, np, pd, random
+    return Image, ImageDraw, base64, math, mo, np, pd, qrcode, random
 
 
 @app.cell
@@ -238,19 +266,16 @@ def cover(mo):
     mo.vstack(
         [
             mo.md(
-                """
-            #**Don't Do That!**
-            ###Avoiding Anti-Patterns in Python
+                """##**Don't Do That!** 
+                ###Avoiding Anti-Patterns in Python
             """
             ),
-            mo.image(src="images/cover.png", width=400, height=400, rounded=True),
+            mo.image(src="images/cover.png", width=300, height=300, rounded=True),
             mo.md(
-                """##Dario Ruben Scanferlato
-            ###<center>PyCon Italia 2026</center>"""
+                """###Dario Ruben Scanferlato - PyCon Italia 2026"""
             ),
         ],
-        align="center",
-        gap=5,
+        align="center", gap=2
     )
     return
 
@@ -281,14 +306,14 @@ def about_me(mo):
 
 
 @app.cell
-def intro_graph():
+def intro_graph(pd):
     from datetime import datetime
 
     import matplotlib.pyplot as plt
 
     # Data
-    dates = [datetime(2026, 5, 29), datetime(2026, 5, 30)]
-    presentations = [0, 1]
+    dates = pd.date_range(start='2026-05-29', end='2026-06-01')
+    presentations = [0, 0, 1, 1]
 
     # Create figure
     plt.figure(figsize=(10, 6))
@@ -300,10 +325,21 @@ def intro_graph():
     plt.title("Number of presentations I've given at PyCon")
     plt.xlabel("Date")
     plt.ylabel("Presentations")
-    plt.xticks(dates, ["May 29, 2026", "May 30, 2026"])
+    plt.xticks(dates, [d.date().strftime('%Y-%m-%d') for d in dates])
 
     plt.grid(True)
     plt.show()
+    return (dates,)
+
+
+@app.cell
+def _(dates):
+    a = dates[0]
+    return
+
+
+@app.cell
+def _():
     return
 
 
@@ -323,10 +359,10 @@ def agenda(mo):
 @app.cell
 def design_patterns_book(mo):
     mo.md("""
-    # Design patterns
-    > ###Design patterns are typical solutions to recurring problems in software design. Each pattern is a blueprint you can adapt to solve a particular design problem in your code.
+    ## Design patterns
+    > ####Design patterns are typical solutions to recurring problems in software design. Each pattern is a blueprint you can adapt to solve a particular design problem in your code.
     <p align="center">
-        <img src="https://m.media-amazon.com/images/I/81IGFC6oFmL._SL1500_.jpg" alt="Design Patterns book cover" width="400"/>
+        <img src="https://m.media-amazon.com/images/I/81IGFC6oFmL._SL1500_.jpg" alt="Design Patterns book cover" width="350"/>
     </p>
     """)
     return
@@ -463,7 +499,7 @@ def automatic_code_analysis(mo):
     mo.hstack(
             [
                 mo.vstack([mo.md(
-                    """# Automatic code analysis tools
+                    """## Automatic code analysis tools
     - A linter parses your code into an AST (Abstract Syntax Tree) and then walks that tree looking for nodes that match a known bad pattern. When it finds one, it emits a violation with the rule code, line number, and a message.
     - Linters can be configured enabling rule sets to detect specific types of errors
     - Anti-patterns detected by linters are identified with a code. The code is composed of one (or more) letter(s) that indicates the error category, and a number to differentiate within the category. For example, pylint uses the following:
@@ -476,8 +512,8 @@ def automatic_code_analysis(mo):
                 )]),
                 mo.image(
                     src="http://media.makeameme.org/created/linter-and-formatter.jpg",
-                    width=350,
-                    height=500
+                    width=330,
+                    height=450
                 ),
             ], gap=3, align='center'
         )
@@ -491,74 +527,33 @@ def linter_error_animation(mo):
 
 
 @app.cell
-def linter_setup_1(mo):
-    mo.md("""
-    <style>
-    pre {
-        background-color: #f3f4f6 !important;
-        padding: 12px;
-        border-radius: 8px;
-    }
-    code {{
-        font-family: "JetBrains Mono", monospace;
-        font-size: 14px;
-    }}
-    </style>
-    ##Setting up an automated linter
-    Configuring a linter is pretty straightforward. I recommend [**ruff**](https://docs.astral.sh/ruff/) as it's very fast and has auto-fix capabilities. We can enable the linter to run every time we commit our code using pre-commit
-
-    Step 1: Install pre-commit and ruff
-    ```bash
-    pip install pre-commit ruff
-    ```
-    Step 2: Create .pre-commit-config.yaml
-    ```yaml
-    repos:
-      - repo: https://github.com/astral-sh/ruff-pre-commit
-        rev: v0.5.0
-        hooks:
-          - id: ruff
-          - id: ruff-format
-    ```
-    Step 3: Enable pre-commit
-    ```bash
-    pre-commit install
-    ```
-    """)
-    return
-
-
-@app.cell
 def linter_config(mo):
-    mo.vstack([mo.md('#Configuring your linter'), mo.hstack(
+    mo.vstack(
         [
-            mo.md(
-                r"""
-        - You might want to configure your linter to only enforce specific sets of rules, especially if you're linting a large codebase for the first time
-        - This can be done easily by updating your package ```pyproject.toml``` file
-        - Note that rule codes may vary across different linters
+            mo.md('#Configuring your linter'),
+            mo.md(r"""
+                - You might want to configure your linter to only enforce specific sets of rules, especially if you're linting a large codebase for the first time
+                - This can be done easily by updating your package ```pyproject.toml``` file
+                - Note that rule codes may vary across different linters
+                ```toml
+                [tool.ruff.lint]
+                select = [
+                    "E",
+                    "W",
+                    ...
+                ]
 
-        ```toml
-        [tool.ruff.lint]
-        select = [
-            "E",
-            "W",
-            ...
-        ]
+                ignore = [
+                    "E501",
+                    ...
+                ]
+                ```
+                """)
 
-        ignore = [
-            "E501",
-            ...
-        ]
-        ```
-        """
-            ),
-            mo.image("images/done_linting.jpg").center(),
         ],
-        gap=5,
-        align="center",
-        widths="equal"
-    )], align='center', gap=5)
+        gap=5)
+
+    # mo.image("images/done_linting.jpg", width=300),
     return
 
 
@@ -654,7 +649,7 @@ def data_structures(mo):
         - The `queue` and `collections` standard packages include additional data structures that can be leveraged in our code.
 
 
-        > Reference: Effective Python by Brett Slatkin - Using Built-in Packages
+        > Reference for the next example: Effective Python by Brett Slatkin - Using Built-in Packages
         """
             )]),
             mo.image(
@@ -696,7 +691,7 @@ def lists_as_queue(AntiPatternSlide):
         item = queue.popleft()  # O(1) ✓
         print(f"Processing: {item}")
     """,
-        tip="Note that for LIFO (last in first out) queues, a list would actually be fine",
+        tip="Note that for stacks, a list would actually be fine since removing the last element has O(1) complexity",
     )
     return
 
@@ -768,30 +763,19 @@ def performance_intro(mo):
 
     > *"Premature optimization is the root of all evil."* — Donald Knuth
 
-    Rewriting code "to make it faster" before measuring is itself an anti-pattern. It:
-
-    - Wastes effort on code paths that may not even be the bottleneck
-    - Makes code harder to read and maintain
-    - Bakes in assumptions instead of measurements
-    - Can introduce subtle bugs while chasing imaginary gains
+    - Rewriting code "to make it faster" before measuring is itself an anti-pattern. It wastes effort on code paths that may not even be the bottleneck
+    - Might make code harder to read and maintain
 
     **Before you optimize: profile.** Python's standard library gives you two great tools for free:
 
-    - **`cProfile`** — deterministic CPU profiler. Shows how much time each function call takes.
+    - **`cProfile`** — CPU profiler. Shows how much time each function call takes.
     - **`tracemalloc`** — memory allocation tracker. Shows current and peak memory used, and where it was allocated.
-
-    Both are built in, both work on any Python program, and both can be wrapped around the suspect code in a handful of lines.
     """)
     return
 
 
 @app.cell
 def profiling_setup(mo):
-    # Setup cell — defines the two batching implementations from the itertools
-    # slide (each calling a placeholder `process_data`), and the code snippets
-    # shown in each tab (which include the cProfile / tracemalloc wrapping so
-    # the audience sees a minimal end-to-end example). Produces no visible
-    # output: in slide mode, exclude this cell from the layout.
     import textwrap
 
     def process_data(batch):
@@ -1167,7 +1151,7 @@ def pandas_resample(AntiPatternSlide):
 def summary(mo):
     mo.md("""
     # Summary and closing remarks
-    - Use linters, they are cool
+    - Use linters and profilers. Learning how to use them is quite fast, compared to the benefit they might bring you.
     - Be mindful when approaching a common problem for which an idiomatic, widely-accepted solution might exist.
     - Spending time learning, rather than building stuff, is not a bad idea. You might end up writing beatiful, elegant, and reliable code.
     """)
@@ -1175,19 +1159,32 @@ def summary(mo):
 
 
 @app.cell
-def qr_code(io, mo):
-    import qrcode
-    import base64
+def qr_code(base64, io, mo, qrcode):
+    url_github = "https://github.com/DarioRubenScanferlato/Python-Anti-Patterns"
+    url_molab = "https://molab.marimo.io/notebooks/nb_u8i4cJLx3bfH1v397XSnVB"
 
-    url = "https://github.com/DarioRubenScanferlato/Python-Anti-Patterns"
+    def get_qrcode(url):
+        buf = io.BytesIO()
+        qrcode.make(url).save(buf, format="PNG")
+        b64 = base64.b64encode(buf.getvalue()).decode()
+        return b64
 
-    buf = io.BytesIO()
-    qrcode.make(url).save(buf, format="PNG")
-    b64 = base64.b64encode(buf.getvalue()).decode()
+    def get_qr_with_link(title, url):
+        qr = get_qrcode(url)
+        return mo.vstack(
+            [
+                mo.Html(f'<img src="data:image/png;base64,{qr}" width="300"/>'),
+                mo.md(f"###[{title}]({url})")
+            ],
+            align='center'
+        )
 
     mo.vstack([
-        mo.md("# Link to the presentation (GitHub)"),
-        mo.Html(f'<img src="data:image/png;base64,{b64}" width="600"/>')
+        mo.md("# Links to the presentation"),
+        mo.hstack([
+            get_qr_with_link('GitHub', url_github),
+            get_qr_with_link('MoLab', url_molab)
+        ])
     ],
             align='center')
     return
