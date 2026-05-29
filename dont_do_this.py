@@ -10,44 +10,21 @@ app = marimo.App(
 
 
 @app.cell
-def linter_setup_1(mo):
-    mo.md("""
-    ##Automating linter checks
-    Configuring a linter is pretty straightforward. I recommend [**ruff**](https://docs.astral.sh/ruff/) as it's very fast and has auto-fix capabilities. We can enable the linter to run every time we commit our code using pre-commit
-
-    Step 1: Install pre-commit and ruff
-    ```bash
-    pip install pre-commit ruff
-    ```
-    Step 2: Create .pre-commit-config.yaml
-    ```yaml
-    repos:
-      - repo: https://github.com/astral-sh/ruff-pre-commit
-        rev: v0.5.0
-        hooks:
-          - id: ruff
-          - id: ruff-format
-    ```
-    Step 3: Enable pre-commit
-    ```bash
-    pre-commit install
-    ```
-    """)
-    return
-
-
-@app.cell
 def imports():
     import math
+    import io
+    import cProfile
+    import pstats
+    import time
+    import tracemalloc
     import random
     import pandas as pd
     import numpy as np
     import qrcode
     import base64
     import marimo as mo
-    from PIL import Image, ImageDraw
 
-    return Image, ImageDraw, base64, math, mo, np, pd, qrcode, random
+    return base64, cProfile, io, mo, np, pd, pstats, qrcode, time, tracemalloc
 
 
 @app.cell
@@ -62,6 +39,7 @@ def anti_pattern_slide_class(mo):
             pattern_id=None,
             tip=None,
             info=None,
+            tab_labels=("❌ Anti-pattern", "✅ Fix"),
         ):
             self.title = title
             self.good_code = good_code
@@ -70,6 +48,7 @@ def anti_pattern_slide_class(mo):
             self.pattern_id = pattern_id
             self.tip = tip
             self.info = info
+            self.tab_labels = tab_labels
 
         def _code_block(self, text):
 
@@ -86,7 +65,7 @@ def anti_pattern_slide_class(mo):
 
     pre code {{
         font-family: "JetBrains Mono", monospace !important;
-        font-size: 24px !important;
+        font-size: 18px !important;
         line-height: 1.5 !important;
     }}
 
@@ -100,7 +79,7 @@ def anti_pattern_slide_class(mo):
         def _tip_div(self):
             if self.tip is not None:
                 return mo.Html(f"""
-    <div style="background:#e8f4fd; border-left:4px solid #3b82f6;
+    <div style="background:#e8f4fd; font-size:16px; border-left:4px solid #3b82f6;
                 padding:20px 16px; margin:0; border-radius:4px;">
       💡 {self.tip}
     </div>
@@ -122,8 +101,8 @@ def anti_pattern_slide_class(mo):
                     mo.md(self.description),
                     mo.ui.tabs(
                         {
-                            "❌ Anti-pattern": self._code_block(self.bad_code),
-                            "✅ Fix": self._code_block(self.good_code),
+                            self.tab_labels[0]: self._code_block(self.bad_code),
+                            self.tab_labels[1]: self._code_block(self.good_code),
                         }
                     ),
                     self._tip_div(),
@@ -138,130 +117,6 @@ def anti_pattern_slide_class(mo):
 
 
 @app.cell
-def g_1(Image, ImageDraw, math, random):
-    def normalize(vx, vy, vz):
-        length = math.sqrt(vx * vx + vy * vy + vz * vz)
-        if length == 0:
-            return (0, 0, 0)
-        return (vx / length, vy / length, vz / length)
-
-    def draw_jagged_grid(
-        width=800,
-        height=800,
-        spacing=40,
-        cx=400,
-        cy=400,
-        radius=200,
-        max_displacement=15,
-        bg_color="white",
-        line_color="black",
-        line_width=2,
-        frame_width=0,
-        seed=42,
-    ):
-        img = Image.new("RGB", (width, height), bg_color)
-        draw = ImageDraw.Draw(img)
-        rng = random.Random(seed)
-
-        xs = list(range(-spacing, width + spacing * 2, spacing))
-        ys = list(range(-spacing, height + spacing * 2, spacing))
-
-        grid = {}
-        for xi, x in enumerate(xs):
-            for yi, y in enumerate(ys):
-                dist = math.sqrt((x - cx) ** 2 + (y - cy) ** 2)
-                if dist < radius:
-                    strength = 1 - dist / radius
-                    grid[(xi, yi)] = (
-                        x + rng.uniform(-max_displacement, max_displacement) * strength,
-                        y + rng.uniform(-max_displacement, max_displacement) * strength,
-                    )
-                else:
-                    grid[(xi, yi)] = (x, y)
-
-        # ----------------------------
-        # LIGHTING / SHADING
-        # ----------------------------
-        light_dir = normalize(-1, -1, 1)  # light from top-left
-
-        for xi in range(len(xs) - 1):
-            for yi in range(len(ys) - 1):
-                p1 = grid[(xi, yi)]
-                p2 = grid[(xi + 1, yi)]
-                p3 = grid[(xi + 1, yi + 1)]
-                p4 = grid[(xi, yi + 1)]
-
-                # Base vectors
-                v1 = (p2[0] - p1[0], p2[1] - p1[1], 0)
-                v2 = (p4[0] - p1[0], p4[1] - p1[1], 0)
-
-                # Fake height from displacement
-                z1 = (p1[0] - xs[xi]) + (p1[1] - ys[yi])
-                z2 = (p2[0] - xs[xi + 1]) + (p2[1] - ys[yi])
-                z4 = (p4[0] - xs[xi]) + (p4[1] - ys[yi + 1])
-
-                v1 = (v1[0], v1[1], z2 - z1)
-                v2 = (v2[0], v2[1], z4 - z1)
-
-                # Cross product → normal
-                nx = v1[1] * v2[2] - v1[2] * v2[1]
-                ny = v1[2] * v2[0] - v1[0] * v2[2]
-                nz = v1[0] * v2[1] - v1[1] * v2[0]
-
-                nx, ny, nz = normalize(nx, ny, nz)
-
-                # Dot product → brightness
-                brightness = nx * light_dir[0] + ny * light_dir[1] + nz * light_dir[2]
-
-                # Map to grayscale
-                shade = int(200 + 50 * brightness)
-                shade = max(0, min(255, shade))
-
-                color = (shade, shade, shade)
-
-                draw.polygon([p1, p2, p3, p4], fill=color)
-
-        # ----------------------------
-        # GRID LINES ON TOP
-        # ----------------------------
-        for yi in range(len(ys)):
-            points = [grid[(xi, yi)] for xi in range(len(xs))]
-            draw.line(points, fill=line_color, width=line_width)
-
-        for xi in range(len(xs)):
-            points = [grid[(xi, yi)] for yi in range(len(ys))]
-            draw.line(points, fill=line_color, width=line_width)
-
-        if frame_width > 0:
-            half = frame_width // 2
-            draw.rectangle(
-                [half, half, width - 1 - half, height - 1 - half],
-                outline=line_color,
-                width=frame_width,
-            )
-
-        return img
-
-    return (draw_jagged_grid,)
-
-
-@app.cell
-def save_cover_image(draw_jagged_grid):
-    jagged_image = draw_jagged_grid(
-        width=1200,
-        height=1200,
-        cx=900,
-        cy=900,
-        radius=320,
-        max_displacement=35,
-        frame_width=6,
-        spacing=80,
-    )
-    jagged_image.save("images/cover.png")
-    return
-
-
-@app.cell
 def cover(mo):
     mo.vstack(
         [
@@ -270,12 +125,15 @@ def cover(mo):
                 ###Avoiding Anti-Patterns in Python
             """
             ),
-            mo.image(src="images/cover.png", width=300, height=300, rounded=True),
+            mo.image(
+                src="images/cover.png", width="30%", height="30%", rounded=True
+            ),
             mo.md(
                 """###Dario Ruben Scanferlato - PyCon Italia 2026"""
             ),
         ],
-        align="center", gap=2
+        align="center",
+        gap=2,
     )
     return
 
@@ -287,54 +145,68 @@ def _():
 
 @app.cell
 def about_me(mo):
-    mo.vstack([mo.md('# About Me'), mo.hstack(
+    mo.vstack(
         [
-            mo.image("images/dario.jpg", width=400, style={"border-radius": "100%"}),
-            mo.md(
-                """
-                - Data Scientist & Engineer
-                - Currently developing anomaly detection and simulation tools for gas turbines using Python
+            mo.md("# About Me"),
+            mo.hstack(
+                [
+                    mo.image(
+                        "images/dario.jpg",
+                        width="30%",
+                        style={"border-radius": "100%"},
+                    ),
+                    mo.md(
+                        """
+                - Data Scientist & Engineer (mostly freelance)
+                - Worked in the supply chain, healthcare, and energy sectors
+                - Most recently developing anomaly detection and simulation tools for gas turbines using Python
                 - MSc in Engineering and Management at Politecnico di Torino
                 - Volunteer of the Python Torino user group
-                - Talk to me about guitar, chess, and open-source
+                - Talk to me about recording music, chess, and open-source
                 """
+                    ),
+                ],
+                gap=10,
+                align="center",
+            ),
+            mo.hstack(
+                [
+                    mo.md("e-mail: dario.scanferlato@gmail.com"),
+                    mo.md("LinkedIn: dario-scanferlato"),
+                ],
+                gap=4,
             ),
         ],
-        gap=10, align='center'
-    )], align='center', gap=4, justify='center')
+        align="center",
+        gap=4,
+        justify="center",
+    )
     return
 
 
 @app.cell
 def intro_graph(pd):
     from datetime import datetime
+    import matplotlib.dates as mdates
+    myFmt = mdates.DateFormatter('%Y-%m-%d %H:%M')
 
     import matplotlib.pyplot as plt
 
     # Data
-    dates = pd.date_range(start='2026-05-29', end='2026-06-01')
-    presentations = [0, 0, 1, 1]
+    dates = pd.date_range(start="2026-05-29", end="2026-06-01", freq="h")
+    presentations = dates > "2026-05-31 12:00"
 
-    # Create figure
     plt.figure(figsize=(10, 6))
-
-    # Plot line
-    plt.plot(dates, presentations, marker="o")
-
-    # Labels and title
+    plt.plot(dates, presentations)
     plt.title("Number of presentations I've given at PyCon")
     plt.xlabel("Date")
     plt.ylabel("Presentations")
-    plt.xticks(dates, [d.date().strftime('%Y-%m-%d') for d in dates])
 
+    ax = plt.gca()
+    ax.xaxis.set_major_formatter(myFmt)
+    plt.xticks(rotation=90)
     plt.grid(True)
     plt.show()
-    return (dates,)
-
-
-@app.cell
-def _(dates):
-    a = dates[0]
     return
 
 
@@ -346,25 +218,33 @@ def _():
 @app.cell
 def agenda(mo):
     mo.md("""
-    # Agenda
+    # In this talk
 
-    - Introduce design patterns and anti-patterns
-    - Explain how to detect anti-patterns with linters
-    - Learn about Python and its libraries through some anti-patterns examples
-    - Provide some guidance on how to avoid anti-patterns
+    - Introduce **design patterns** and **anti-patterns**
+    - Explain how to detect anti-patterns with **linters**
+    - Learn about Python and its libraries through some **anti-patterns examples**
+    - Provide some guidance on **how to avoid anti-patterns**
     """)
     return
 
 
 @app.cell
 def design_patterns_book(mo):
-    mo.md("""
+    mo.vstack(
+        [
+            mo.md("""
     ## Design patterns
-    > ####Design patterns are typical solutions to recurring problems in software design. Each pattern is a blueprint you can adapt to solve a particular design problem in your code.
-    <p align="center">
-        <img src="https://m.media-amazon.com/images/I/81IGFC6oFmL._SL1500_.jpg" alt="Design Patterns book cover" width="350"/>
-    </p>
-    """)
+    > Design patterns are typical solutions to recurring problems in software design. Each pattern is a blueprint you can adapt to solve a particular design problem in your code."""),
+            mo.image(
+                src="https://m.media-amazon.com/images/I/81IGFC6oFmL._SL1500_.jpg",
+                alt="Design Patterns book cover",
+                width="30%",
+                rounded=True,
+            ),
+        ],
+        align="center",
+        gap=2
+    )
     return
 
 
@@ -435,13 +315,10 @@ def anti_patterns_examples(mo):
 def anti_patterns_in_python_intro(mo):
     mo.md("""
     #Anti-patterns in Python
-    - Python is a flexible language that allows us to achieve our programming goals in many different ways
-    - This flexibility can be a double-edged sword
-    - According to the Zen of Python, there should only be one obvious way to fix a problem
+
     <br />
-    > There should be one - and preferably only one - obvious way to do it.
-    > Although that way may not be obvious at first unless you're Dutch.
-    > (Tim Peters - The Zen of Python)
+    > ###There should be one - and preferably only one - obvious way to do it. Although that way may not be obvious at first unless you're Dutch.
+    > ###Tim Peters - The Zen of Python
     """)
     return
 
@@ -450,12 +327,10 @@ def anti_patterns_in_python_intro(mo):
 def mutable_default_args(AntiPatternSlide):
     AntiPatternSlide(
         title="Don't use mutable default arguments",
-        description="""
-    **Mutable default arguments** (like lists or dicts) are created **once** when the function is defined,
-    not each time it is called. This leads to shared state across calls — a very subtle bug.
+        description="""- **Mutable default arguments** (like lists or dicts) are created **once** when the function is defined, not each time it is called.
+    - All calls to the function reuse this one instance of that data structure, persisting changes between them.
             """,
         bad_code="""
-    # ❌ Antipattern: mutable default argument
     def append_to(element, target=[]):
         target.append(element)
         return target
@@ -465,7 +340,6 @@ def mutable_default_args(AntiPatternSlide):
     print(append_to(3))   # [1, 2, 3] <-- The list keeps growing!
     """,
         good_code="""\
-    # ✅ Fix: use None as the default, create inside the function
     def append_to(element, target=None):
         if target is None:
             target = []
@@ -475,8 +349,7 @@ def mutable_default_args(AntiPatternSlide):
     print(append_to(1))   # [1]
     print(append_to(2))   # [2]  ✓
     print(append_to(3))   # [3]  ✓
-    """,
-        tip="""Do not use mutable data structures for argument defaults. They are created during function definition time. All calls to the function reuse this one instance of that data structure, persisting changes between them.""",
+    """
     )
     return
 
@@ -521,6 +394,45 @@ def automatic_code_analysis(mo):
 
 
 @app.cell
+def linter_setup_1(mo):
+    import html
+
+    def code_block_manual(code):
+        return mo.Html(
+           '<pre class="code-block-manual" style="background:#f3f4f6; '
+           'border:1px solid #d1d5db; border-radius:8px; padding:12px 16px; '
+           'overflow-x:auto; margin:0;"><code>'
+           f'{html.escape(code)}</code></pre>'
+       )
+
+
+    mo.vstack(
+        [
+            mo.md("""
+            ## Automating linter checks
+            Configuring a linter is pretty straightforward. I recommend [**ruff**](https://docs.astral.sh/ruff/) as it's very fast and has auto-fix capabilities. We can enable the linter to run every time we commit our code using pre-commit
+
+            Step 1: Install pre-commit
+            """),
+            code_block_manual("pip install pre-commit"),
+            mo.md("Step 2: Create .pre-commit-config.yaml"),
+            code_block_manual(
+                "repos:\n"
+                "  - repo: https://github.com/astral-sh/ruff-pre-commit\n"
+                "    rev: v0.15.14\n"
+                "    hooks:\n"
+                "      - id: ruff-check\n"
+                "      - id: ruff-format    # Not related to linting, but useful nonetheless"
+            ),
+            mo.md("Step 3: Enable pre-commit"),
+            code_block_manual("pre-commit install"),
+        ],
+        gap=1,
+    )
+    return
+
+
+@app.cell
 def linter_error_animation(mo):
     mo.image("images/linter error.gif")
     return
@@ -534,7 +446,7 @@ def linter_config(mo):
             mo.md(r"""
                 - You might want to configure your linter to only enforce specific sets of rules, especially if you're linting a large codebase for the first time
                 - This can be done easily by updating your package ```pyproject.toml``` file
-                - Note that rule codes may vary across different linters
+                - Your linter can be also configured to set limit on code complexity, and to ignore certain files
                 ```toml
                 [tool.ruff.lint]
                 select = [
@@ -567,9 +479,9 @@ def bare_except(AntiPatternSlide):
     - This anti-pattern is well-known and some people even proposed to disallow it in Python ([PEP76](https://peps.python.org/pep-0760/))
         """,
         bad_code="""try:
-        raise KeyboardInterrupt("You probably don't mean to break CTRL-C.")
+        raise KeyboardInterrupt("This raised exception simulates a user interrupting the program with their keyboard.")
     except:
-        print("But a bare `except` will ignore keyboard interrupts.")
+        print("Continuing program execution despite the keyboard interrupt, as a bare except was used!")
     """,
         good_code="""try:
         do_something_that_might_break()
@@ -591,8 +503,7 @@ def bare_except(AntiPatternSlide):
 def type_vs_isinstance(AntiPatternSlide):
     AntiPatternSlide(
         title="type() vs isinstance()",
-        description="""Using `type(x) == SomeType` breaks **polymorphism** and ignores subclasses.
-    `isinstance()` respects inheritance and is the Pythonic way to check types.""",
+        description="""Using `type(x) == SomeType` breaks **polymorphism** and ignores subclasses.""",
         bad_code="""
     class Animal:
         pass
@@ -603,7 +514,7 @@ def type_vs_isinstance(AntiPatternSlide):
     dog = Dog()
 
     if type(dog) == Animal:  # Evaluates to False, since type(dog) returns <class '__main__.Dog'>
-        print("What a magnificent beast!")
+        print("What a magnificent specimen!")
     """,
         good_code="""
     class Animal:
@@ -615,23 +526,23 @@ def type_vs_isinstance(AntiPatternSlide):
     dog = Dog()
 
     if isinstance(dog, Animal):  # evaluates to True
-        print("What a magnificent beast!")
+        print("What a magnificent specimen!")
     """,
         tip="Prefer `isinstance()` for type checks. It works correctly with subclasses and abstract base classes. You can also check if an object belongs to a list of classes, e.g. isinstance(my_animal, [Dog, Cat])",
     )
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def beyond_linters(mo):
     mo.md("""
     # Beyond linters
-    Linters can greatly help identifying ways to improve our code, they don't magically make you a great developer.
+    Linters are the best bang for your buck to improve your code quality, especially if you're a beginner. But they don't cover all anti-patterns.
 
-    - Linters fail to capture bad design decisions, e.g. code structure, although you can configure limits on code complexity
-    - Linters don't usually detect inappropriate choices for data structures and algorithms
-    - Linters don't enforce good development habits (e.g. versioning code, having a reproducible environment, implementing unit-tests to make your code reliable)
-    - It's possible to write awful code that passes all linter checks
+    - Linters **fail to capture bad design decisions**, e.g. code structure, although you can configure limits on code complexity
+    - Linters **don't usually detect inappropriate choices** for data structures and algorithms
+    - Linters don't enforce positive development habits (e.g. versioning code, having a reproducible environment, having meaningful tests)
+    - **It's totally possible to write awful code that passes all linter checks**
     """)
     return
 
@@ -644,8 +555,8 @@ def data_structures(mo):
                 """
         # Data Structures
         - Learning about data structures and their implementation in Python makes you write faster and more efficient code.
-        - Each data structure must be picked according to how you need to access and interact with your data.
-        - By sticking with idiomatic, built-in algorithms, we avoid straying into anti-pattern territory
+        - Each data structure must be picked according to how you need to access and interact with underlying data.
+        - Generally, by sticking with idiomatic, built-in algorithms, we avoid straying into anti-pattern territory
         - The `queue` and `collections` standard packages include additional data structures that can be leveraged in our code.
 
 
@@ -704,7 +615,7 @@ def _():
 @app.cell
 def data_structure_diagram(mo):
     diagram = mo.mermaid("""
-        %%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#EEEDFE', 'primaryBorderColor': '#7F77DD', 'primaryTextColor': '#3C3489', 'secondaryColor': '#E1F5EE', 'tertiaryColor': '#FAEEDA'}, 'flowchart': {'curve': 'basis'}}}%%
+        %%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#EEEDFE', 'primaryBorderColor': '#7F77DD', 'primaryTextColor': '#3C3489', 'secondaryColor': '#E1F5EE', 'tertiaryColor': '#FAEEDA'}, 'flowchart': {'curve': 'basis'}, 'config': {'layout': 'elk'}}}%%
     flowchart LR
         START([Start: collection of data])
         START --> Q1{Order matters?}
@@ -716,7 +627,7 @@ def data_structure_diagram(mo):
         Q3 -->|No| R_T([tuple])
         Q3 -->|Yes| Q4{Access pattern?}
         Q4 -->|Index / general use| R_L([list])
-        Q4 -->|Fast insert & remove\\nat both ends| R_DQ([deque])
+        Q4 -->|Fast insert & remove \n at both ends| R_DQ([deque])
         Q1 -->|No| Q5{Require\\nunique values?}
         Q5 -->|Yes| Q6{Key → value pairs?}
         Q6 -->|Yes| R_DICT([dict])
@@ -726,9 +637,9 @@ def data_structure_diagram(mo):
         Q5 -->|No| Q8{Mutable?}
         Q8 -->|Yes| R_L2([list])
         Q8 -->|No| R_T2([tuple])
-        """)
+        """).style(width="95vh").center()
 
-    mo.vstack([mo.md("## Picking the right data structure"), diagram], gap=5)
+    mo.vstack([mo.md("## Picking the right data structure"), diagram], gap=2)
     return
 
 
@@ -736,8 +647,8 @@ def data_structure_diagram(mo):
 def itertools_batched(AntiPatternSlide):
     AntiPatternSlide(
         title="More on built-in packages",
-        description="""- Python provides a wide array of tools to make your loops efficient, idiomatic, and readable (enumerate, zip, list comprehensions)
-        - Linters already notify you about some idiomatic ways to improve your loops
+        description="""- Python provides a wide array of built-in tools to make your loops efficient, idiomatic, and readable (enumerate, zip, list comprehensions)
+        - Linters also notify you about some ways to improve your loops
         - As looping conditions become more complex, it might be worthwhile to check whether the itertools standard package has a solution. One of such cases arises when we want to process data in batches""",
         bad_code="""batch_size = 100
 
@@ -751,7 +662,8 @@ def itertools_batched(AntiPatternSlide):
     for batch in batched(records, batch_size):
         process(batch)
     """,
-        tip="""While it might be debatable whether this is an anti-pattern, using batched is more readable, less error prone, and also applies to generators. The batched iterator allocates tuples rather than lists, which is slightly cheaper. Note that batched is only available on Python >3.12""",
+        tip="""Employing batched yield a code that is immediately clear in its intent. bached also applies to generators and it allocates tuples rather than lists. Note that batched is only available on Python >=3.12""",
+        tab_labels=('range', 'itertools')
     )
     return
 
@@ -759,17 +671,18 @@ def itertools_batched(AntiPatternSlide):
 @app.cell
 def performance_intro(mo):
     mo.md(r"""
-    # Premature optimization — an anti-pattern
+    # Performance
 
-    > *"Premature optimization is the root of all evil."* — Donald Knuth
-
-    - Rewriting code "to make it faster" before measuring is itself an anti-pattern. It wastes effort on code paths that may not even be the bottleneck
+    - Many anti-patterns hurt performance, but one of the most common mistake is to make assumptions about the performance of some given code. This leads to suboptimal choices between alternatives, as well as premature optimization
+    - Optimizing code for performance before measuring is itself an anti-pattern. It wastes effort on code paths that may not even be the bottleneck.
     - Might make code harder to read and maintain
 
     **Before you optimize: profile.** Python's standard library gives you two great tools for free:
 
     - **`cProfile`** — CPU profiler. Shows how much time each function call takes.
     - **`tracemalloc`** — memory allocation tracker. Shows current and peak memory used, and where it was allocated.
+
+    > *"Premature optimization is the root of all evil."* — Donald Knuth
     """)
     return
 
@@ -879,18 +792,17 @@ def performance_comparison(
     btn_comparison,
     btn_cprofile,
     btn_tracemalloc,
+    cProfile,
+    io,
     mo,
     process_with_batched,
     process_with_slicing,
+    pstats,
     slicing_cprofile_code,
     slicing_tracemalloc_code,
+    time,
+    tracemalloc,
 ):
-    import cProfile
-    import io
-    import pstats
-    import time
-    import tracemalloc
-
     _records = list(range(10_000_000))
     _batch_size = 1000
 
@@ -1042,7 +954,7 @@ def performance_comparison(
     )
 
     mo.vstack([
-        mo.md("## Profiling demo — cProfile vs tracemalloc <br>"),
+        mo.md("## Profiling demo — cProfile and tracemalloc \n <br>"),
         mo.md("""With just a few lines of code we can get in-depth statistics on our code's performance"""
         ),
         mo.ui.tabs({
@@ -1051,7 +963,7 @@ def performance_comparison(
             "Comparison": comparison_tab,
         }),
     ])
-    return (io,)
+    return
 
 
 @app.cell
@@ -1065,39 +977,45 @@ def get_to_know_packages(mo):
 
 
 @app.cell
-def pandas_intro(mo):
-    mo.md("""
-    # Pandas anti-patterns
-    - Pandas is one of the most widely used Python libraries for data analysis
-    - Its flexible API makes it easy to write code that is correct but slow or hard to read
-    - Several common Pandas anti-patterns have a simple, idiomatic fix that makes code faster and cleaner
-    """)
-    return
-
-
-@app.cell
 def pandas_chaining(AntiPatternSlide):
     AntiPatternSlide(
         title="Method chaining in Pandas",
-        description="""Salvare ogni passo di trasformazione in una nuova variabile (`df1`, `df2`, …) ingombra il namespace e
-    rende difficile seguire il flusso dei dati. Pandas è progettato per il **method chaining** — ogni trasformazione
-    restituisce un DataFrame, quindi i passi possono essere composti in un'unica espressione leggibile.""",
+        description="""- Saving every step of a dataframe trasformation into a variable pollutes the namespaces and makes the code less readable.
+        - As many DataFrame methods return a DataFrame, **method chaining** becomes possible
+        - Transformation steps can be composed to achieve a more readable pipeline""",
         bad_code="""def prepare_data(df):
         df['age'] = (pd.Timestamp.today() - df["date_of_birth"]).dt.days // 365
         df1 = df[df['age'] > 18]
         df2 = df1.dropna(subset=['email'])
         df3 = df2.drop(columns=['address'])
-        return df3.set_index('user_id')
-    """,
-        good_code="""def calculate_age(df):
-        now = pd.Timestamp.today()
-        df['age'] = (now - df['date_of_birth']).dt.days // 365
+        return df3.set_index('user_id')""",
+        good_code="""def prepare_data(df):
+        return (
+            df
+            .assign(age=(pd.Timestamp.today() - pd.col('date_of_birth')).dt.days // 365) 
+            .query('age > 18')
+            .dropna(subset=['email'])
+            .drop(columns=['address'])
+            .set_index('user_id')
+        )
+    
+    
+
+
+
+
+
+    
+    # Let's make it even more readable    
+    def add_customer_age(df):
+        today = pd.Timestamp.today()
+        df['age'] = (today - df['date_of_birth']).dt.days // 365
         return df
 
     def prepare_data(df):
         return (
         df
-            .pipe(calculate_age) 
+            .pipe(add_customer_age) 
             .query('age > 18')
             .dropna(subset=['email'])
             .drop(columns=['address'])
@@ -1153,7 +1071,7 @@ def summary(mo):
     # Summary and closing remarks
     - Use linters and profilers. Learning how to use them is quite fast, compared to the benefit they might bring you.
     - Be mindful when approaching a common problem for which an idiomatic, widely-accepted solution might exist.
-    - Spending time learning, rather than building stuff, is not a bad idea. You might end up writing beatiful, elegant, and reliable code.
+    - Spend time mastering the basics, and learning best practices, rather than just "building stuff". You might end up writing beatiful, elegant, and reliable code.
     """)
     return
 
@@ -1161,7 +1079,7 @@ def summary(mo):
 @app.cell
 def qr_code(base64, io, mo, qrcode):
     url_github = "https://github.com/DarioRubenScanferlato/Python-Anti-Patterns"
-    url_molab = "https://molab.marimo.io/notebooks/nb_u8i4cJLx3bfH1v397XSnVB"
+    url_molab = "https://molab.marimo.io/notebooks/nb_u8i4cJLx3bfH1v397XSnVB/app"
 
     def get_qrcode(url):
         buf = io.BytesIO()

@@ -1,15 +1,15 @@
-.markdown {
-    font-size: 20px;
-}
-
-/* Center all slide titles. h1/h2 are used as slide / section headings;
-   leave h3+ alone since they appear inline (e.g. subtitles, column heads). */
 .markdown h1,
 .markdown h2 {
     text-align: center;
 }
 
-.mermaid svg {
-    width: 1400px !important;
-    height: auto !important;
+.markdown {
+    font-size: 24px;
+}
+
+.markdown pre.code-block-manual,
+.markdown pre.code-block-manual code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px !important;
+    line-height: 1.5;
 }

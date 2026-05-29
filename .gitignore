@@ -8,3 +8,7 @@ wheels/
 *.DS_Store
 __marimo__
 .ruff_cache
+
+.agents
+.claude
+skills-lock.json
