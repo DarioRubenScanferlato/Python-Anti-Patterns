@@ -335,9 +335,9 @@ def mutable_default_args(AntiPatternSlide):
         target.append(element)
         return target
 
-    print(append_to(1))   # [1]
-    print(append_to(2))   # [1, 2]  <-- Unexpected!
-    print(append_to(3))   # [1, 2, 3] <-- The list keeps growing!
+    print(append_to(1))   # [1] <-- Appends to the mutable default argument
+    print(append_to(2))   # [1, 2]  <-- Every subsequent call using the default argument appends to the same list
+    print(append_to(3))   # [1, 2, 3] <-- And so on
     """,
         good_code="""\
     def append_to(element, target=None):
@@ -972,6 +972,7 @@ def get_to_know_packages(mo):
     # Get to know your packages
     - Understanding the inner workings of the packages makes you write more efficient code
     - Be aware of common tools, workflows, and patterns used to solve problems
+    - Learn from other people's code, read documentation, watch talks
     """)
     return
 
@@ -1069,9 +1070,9 @@ def pandas_resample(AntiPatternSlide):
 def summary(mo):
     mo.md("""
     # Summary and closing remarks
-    - Use linters and profilers. Learning how to use them is quite fast, compared to the benefit they might bring you.
+    - Use linters and profilers when appropriate, the time investment to set them up can
     - Be mindful when approaching a common problem for which an idiomatic, widely-accepted solution might exist.
-    - Spend time mastering the basics, and learning best practices, rather than just "building stuff". You might end up writing beatiful, elegant, and reliable code.
+    - Writing anti-patterns and making mistakes is totally ok, one's experience correlates with the cumulative count of anti-patterns written
     """)
     return
 
@@ -1121,7 +1122,7 @@ def references(mo):
     - [The Little Book of Python Anti-Patterns](https://docs.quantifiedcode.com/python-anti-patterns/index.html)
     ### Talks
     - [Write faster Python! Common performance anti patterns - Anthony Shaw - PyCon US 2022](https://www.youtube.com/watch?v=YY7yJHo0M5I)
-    - [Don't do that! - Laurenz Albe - Postgres Conference Europe 2025](https://www.youtube.com/watch?v=EKjUd7FUBSc) (not Python-related to, but a great inspiration for this talk)
+    - [Don't do that! - Laurenz Albe - Postgres Conference Europe 2025](https://www.youtube.com/watch?v=EKjUd7FUBSc) (not Python-related, but a great inspiration for this talk)
     """)
     return
 
